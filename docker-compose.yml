@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pirch
+
+  pirch:
+    build:
+      context: .
+      dockerfile: docker/pirch.dockerfile
+    env_file: ./prod.env
+    volumes:
+      - ./prod.env:/app/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - pirch
+
+networks:
+  pirch:
+
+volumes:
+  postgres_data:

@@ -1,0 +1,35 @@
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    curl \
+    # python3-psycopg2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
+
+COPY pyproject.toml uv.lock README.md ./
+COPY pirch ./pirch
+
+# Install dependencies
+RUN uv venv
+RUN uv sync --frozen --no-cache
+
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+
+COPY pirch ./pirch
+COPY --from=builder /app/.venv /app/.venv 
+
+
+CMD ["/app/.venv/bin/fastapi", "dev", "pirch/main.py", "--host", "0.0.0.0", "--port", "8080"]
+
+
