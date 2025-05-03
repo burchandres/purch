@@ -23,7 +23,7 @@ def delete_user(
 ):
     if (
         current_user.id != id
-        or UserRoles.get_role_value(current_user.role) < UserRoles.admin.value
+        or UserRoles.get_role_value(current_user.role) < UserRoles.get_role_value(UserRoles.admin)
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

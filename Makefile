@@ -23,11 +23,8 @@ lint-backend: ## Lint the backend portion of the project with ruff
 
 run-app: ## Run the app locally for faster development
 	@echo "Running make $@..."
-	fastapi dev pirch/main.py --host=0.0.0.0 --port=8080
-
-up-db: ## Just spin up the postgres container instance
-	@echo "Running make $@..."
-	docker-compose up --file=docker-compose.yml -d postgres
+	make up-db
+	fastapi dev pirch/main.py --port=8080
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
@@ -38,3 +35,7 @@ setup: ## Set up venv and install dependencies
 up: ## Spin up docker containers to run application
 	@echo "Running make $@..."
 	docker-compose --file=docker-compose.yml up -d
+
+up-db: ## Just spin up the postgres container instance
+	@echo "Running make $@..."
+	docker-compose --file=docker-compose.yml up -d postgres
