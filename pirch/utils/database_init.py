@@ -1,8 +1,7 @@
 import logging
 
-from sqlmodel import create_engine, text, Session
+from sqlmodel import create_engine, text
 
-from pirch.user.model import User  # Need to import to create table upon startup
 from pirch.utils.config import get_settings
 
 LOGGER = logging.getLogger(__name__)
