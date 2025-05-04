@@ -10,7 +10,7 @@ from pirch.auth.security import (
     verify_password,
     hash_password,
 )
-from pirch.user.engine import UserRepository
+from pirch.user.repository import UserRepository
 from pirch.user.model import User
 
 

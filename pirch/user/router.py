@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
-from pirch.user.engine import UserRepository
+from pirch.user.repository import UserRepository
 from pirch.user.model import User, UserRoles
 from pirch.auth.security import oauth2_scheme, get_current_active_user
 

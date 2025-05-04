@@ -8,7 +8,7 @@ from jose import jwt, JWTError
 
 from pirch.utils.config import get_settings
 from pirch.user.model import User
-from pirch.user.engine import UserRepository
+from pirch.user.repository import UserRepository
 
 
 settings = get_settings()
