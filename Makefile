@@ -13,11 +13,7 @@ down: ## Bring down the docker containers
 	@echo "Running make $@..."
 	docker-compose --file=docker-compose.yml down
 
-lint: ## Lint both the frontend and backend of the project
-	@echo "Running make $@..."
-	make lint-backend
-
-lint-backend: ## Lint the backend portion of the project with ruff
+lint: ## Lint the backend portion of the project with ruff
 	@echo "Running make $@..."
 	uv run ruff format ./pirch
 
