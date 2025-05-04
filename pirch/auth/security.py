@@ -8,7 +8,7 @@ from jose import jwt, JWTError
 
 from pirch.utils.config import get_settings
 from pirch.user.model import User
-from pirch.user.engine import UserDB
+from pirch.user.engine import UserRepository
 
 
 settings = get_settings()
@@ -63,7 +63,7 @@ def create_access_token(
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     """Decode JWT token and return current user."""
-    user_db = UserDB()
+    user_repo = UserRepository()
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -84,7 +84,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise credentials_exception
 
     # Get user from database
-    user = user_db.get_user_via_id(id=user_id)
+    user = user_repo.get_user_via_id(id=user_id)
     if user is None:
         raise credentials_exception
     return user

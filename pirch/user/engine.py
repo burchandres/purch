@@ -14,7 +14,7 @@ from pirch.utils.config import get_settings
 settings = get_settings()
 
 
-class UserDB:
+class UserRepository:
     db_type_default = "postgresql"
 
     def __init__(self):

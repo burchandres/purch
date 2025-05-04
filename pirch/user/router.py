@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
-from pirch.user.engine import UserDB
+from pirch.user.engine import UserRepository
 from pirch.user.model import User, UserRoles
 from pirch.auth.security import oauth2_scheme, get_current_active_user
 
@@ -23,12 +23,12 @@ def delete_user(
 ):
     if (
         current_user.id != id
-        or UserRoles.get_role_value(current_user.role) < UserRoles.get_role_value(UserRoles.admin)
+        or current_user.role != UserRoles.admin
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are not authorized to delete this user",
         )
-    db = UserDB()
-    db.delete_user(id=id)
+    user_repo = UserRepository()
+    user_repo.delete_user(id=id)
     return Response(status_code=200)

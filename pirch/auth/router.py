@@ -10,7 +10,7 @@ from pirch.auth.security import (
     verify_password,
     hash_password,
 )
-from pirch.user.engine import UserDB
+from pirch.user.engine import UserRepository
 from pirch.user.model import User
 
 
@@ -26,8 +26,8 @@ def login_for_access_token(
     """
     Login for access token.
     """
-    db = UserDB()
-    user: User = db.get_user_via_username(username=form_data.username)
+    user_repo = UserRepository()
+    user: User = user_repo.get_user_via_username(username=form_data.username)
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,15 +49,15 @@ def register_user(
     """
     Register a new user.
     """
-    db = UserDB()
-    existing_user = db.get_user_via_username(username=user.username)
+    user_repo = UserRepository()
+    existing_user = user_repo.get_user_via_username(username=user.username)
     # If user already exists return bad request
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with given username already registered",
         )
-    # If not, add user to user db
+    # If not, add user to user user repo
     user.password = hash_password(user.password)
-    db.add_user(user)
+    user_repo.add_user(user)
     return user
