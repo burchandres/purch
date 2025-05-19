@@ -20,7 +20,7 @@ lint: ## Lint the backend portion of the project with ruff
 run-app: ## Run the app locally for faster development
 	@echo "Running make $@..."
 	make up-db
-	fastapi dev pirch/main.py --port=8080
+	uv run fastapi dev pirch/main.py --port=8080
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."

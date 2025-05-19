@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pirch.user.router import router as user_router
 from pirch.auth.router import router as auth_router
 from pirch.utils.project_version import version
-from pirch.utils.database_init import init_db
+from pirch.utils.startup import init_db
 
 
 LOGGER = logging.getLogger(__name__)

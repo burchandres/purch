@@ -1,5 +1,6 @@
 import uuid
 
+from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
 from pirch.user.repository import UserRepository
@@ -11,7 +12,7 @@ router = APIRouter()
 
 @router.get("/current", response_model=User)
 def get_current_user(
-    current_user: User = Depends(get_current_active_user),
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
 
@@ -19,7 +20,7 @@ def get_current_user(
 @router.delete("/delete", dependencies=[Depends(oauth2_scheme)])
 def delete_user(
     id: uuid.UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     if (
         current_user.id != id
