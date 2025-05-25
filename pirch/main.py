@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pirch.user.router import router as user_router
 from pirch.auth.router import router as auth_router
+from pirch.financial.router import router as finance_router
 from pirch.utils.project_version import version
 from pirch.utils.startup import init_db
 
@@ -46,6 +47,8 @@ app.include_router(
     prefix="/auth",
     tags=["auth"],
 )
+# Add core finance service for plaid integration
+app.include_router(router=finance_router, prefix="/plaid", tags=["finance", "plaid"])
 
 
 @app.get("/")

@@ -15,6 +15,7 @@ settings = get_settings()
 
 
 class UserRepository:
+    # TODO: change this to use DuckDB and Parquet files
     db_type_default = "postgresql"
 
     def __init__(self):
