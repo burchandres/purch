@@ -28,10 +28,29 @@ pwd_context = CryptContext(
 
 
 def hash_password(password: str) -> str:
+    """
+    Hashes password according to encryption setting chosen.
+
+    Args:
+        password (str): The password to be hashed for storage.
+
+    Returns:
+        str: The hashed version of the password.
+    """
     return pwd_context.hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Determines if the plain and hashed password inputs are equivalent.
+
+    Args:
+        plain_password (str): The plain text password set by user.
+        hashed_password (str): A hashed password stored in the database.
+
+    Returns:
+        True if equal, otherwise false.
+    """
     try:
         return pwd_context.verify(plain_password, hashed_password)
     except (ValueError, TypeError):
