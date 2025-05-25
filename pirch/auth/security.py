@@ -57,7 +57,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         return False
 
 
-def create_access_token(
+def create_pirch_jwt_access_token(
     data: dict, expires_delta: Optional[datetime.timedelta] = None
 ) -> str:
     """Create JWT access token."""

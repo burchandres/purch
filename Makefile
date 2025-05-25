@@ -17,7 +17,7 @@ lint: ## Lint the backend portion of the project with ruff
 	@echo "Running make $@..."
 	uv run ruff format ./pirch
 
-run-app: ## Run the app locally for faster development
+run-local: ## Run the app locally for faster development
 	@echo "Running make $@..."
 	make up-db
 	uv run fastapi dev pirch/main.py --port=8080

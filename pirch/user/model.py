@@ -25,5 +25,5 @@ class User(SQLModel, table=True):
     password: str = Field(default="password")
     is_active: bool = Field(default=True)
     plaid_access_token: str = Field(default=None)
-    salary: Decimal = Field(defualt=3958.33)
+    salary: Decimal = Field(default=3958.33)
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
