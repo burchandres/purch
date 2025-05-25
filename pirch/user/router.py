@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
 from pirch.user.repository import UserRepository
-from pirch.user.model import User, UserRoles
+from pirch.user.model import User
 from pirch.auth.security import oauth2_scheme, get_current_active_user
 
 router = APIRouter()
@@ -22,13 +22,10 @@ def delete_user(
     id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
-    if (
-        current_user.id != id
-        or current_user.role != UserRoles.admin
-    ):
+    if current_user.id != id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not authorized to delete this user",
+            detail="You can only delete your own account",
         )
     user_repo = UserRepository()
     user_repo.delete_user(id=id)

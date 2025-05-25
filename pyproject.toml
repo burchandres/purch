@@ -9,6 +9,7 @@ dependencies = [
     "argon2-cffi>=23.1.0",
     "fastapi[standard]>=0.115.12",
     "passlib>=1.7.4",
+    "plaid-python>=32.0.0",
     "psycopg2-binary>=2.9.10",
     "pydantic-settings>=2.9.1",
     "python-dotenv>=1.1.0",
