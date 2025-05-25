@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from pirch.user.model import User
-from pirch.financial.service import (
+from pirch.finance.service import (
     create_plaid_link_token,
     get_plaid_access_token,
 )

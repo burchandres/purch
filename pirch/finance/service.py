@@ -12,7 +12,7 @@ from plaid.model.item_public_token_exchange_request import (
 from uuid import UUID
 from datetime import date, timedelta
 
-from pirch.financial.plaid import client
+from pirch.finance.plaid import client
 from pirch.utils.config import get_settings
 
 
