@@ -6,7 +6,7 @@ from pydantic import SecretStr
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
-from pirch.utils.financial import PlaidEnvs
+from pirch.utils.finance import PlaidEnvs
 
 
 class Settings(BaseSettings):
