@@ -27,3 +27,4 @@ class User(SQLModel, table=True):
     plaid_access_token: str = Field(default=None)
     salary: Decimal = Field(default=3958.33)
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
+    category_budgets: dict = Field(default={"food": 350, "groceries": 350})
