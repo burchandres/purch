@@ -11,7 +11,7 @@ services:
     networks:
       - purch
 
-  pirch:
+  purch:
     build:
       context: .
       dockerfile: docker/dockerfile.purch

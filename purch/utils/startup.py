@@ -11,7 +11,7 @@ settings = get_settings()
 def init_db():
     LOGGER.debug("Initializing database...")
     server_engine_url = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}"
-    # Create the server engine to intialize the pirch db
+    # Create the server engine to intialize the purch db
     server_engine = create_engine(
         server_engine_url, echo=True, isolation_level="AUTOCOMMIT"
     )

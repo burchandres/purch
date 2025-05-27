@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_USERNAME: str = "default"
     DB_PASSWORD: str = "password"
     DB_TYPE: str = "postgres"
-    DB_NAME: str = "pirch"
+    DB_NAME: str = "purch"
     # auth service settings
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     # Secret key for JWT signing
