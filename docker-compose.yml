@@ -14,7 +14,7 @@ services:
   pirch:
     build:
       context: .
-      dockerfile: docker/pirch.dockerfile
+      dockerfile: docker/dockerfile.purch
     env_file: ./prod.env
     volumes:
       - ./prod.env:/app/.env

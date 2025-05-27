@@ -38,4 +38,4 @@ up: ## Spin up docker containers to run application
 
 up-db: ## Just spin up the postgres container instance
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml up -d postgres pgadmin
+	docker-compose --file=docker-compose.yml up -d postgres
