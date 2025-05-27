@@ -2,7 +2,7 @@ import uuid
 import datetime as dt
 
 from enum import StrEnum, auto
-from sqlmodel import SQLModel, Field, JSON, Column, ARRAY, String
+from sqlmodel import SQLModel, Field, JSON, Column
 from decimal import Decimal
 
 
@@ -16,7 +16,7 @@ class SalaryRates(StrEnum):
 
 
 class User(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default=None, primary_key=True, unique=True)
+    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True, unique=True)
     last_updated: float = Field(
         default=dt.datetime.timestamp(dt.datetime.now(tz=dt.timezone.utc))
     )
@@ -25,9 +25,7 @@ class User(SQLModel, table=True):
     username: str = Field(default="anders.buch", index=True, unique=True)
     password: str = Field(default="password")
     is_active: bool = Field(default=True)
-    plaid_access_tokens: list[str] = Field(
-        default=None, sa_column=Column(ARRAY(String))
-    )
+    plaid_access_tokens: dict = Field(default_factory=dict, sa_column=Column(JSON))
     salary: Decimal = Field(default=3958.33)
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
     category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))
