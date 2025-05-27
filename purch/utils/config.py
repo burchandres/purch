@@ -6,11 +6,11 @@ from pydantic import SecretStr
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
-from pirch.utils.finance import PlaidEnvs
+from purch.utils.finance import PlaidEnvs
 
 
 class Settings(BaseSettings):
-    PRODUCT_NAME: str = "Pirch"
+    PRODUCT_NAME: str = "Purch"
     # db settings, defaults to local dev
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432

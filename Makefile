@@ -15,12 +15,16 @@ down: ## Bring down the docker containers
 
 lint: ## Lint the backend portion of the project with ruff
 	@echo "Running make $@..."
-	uv run ruff format ./pirch
+	uv run ruff format ./purch
+
+lint-check: ## Check the backend formatting and perform easy fixes
+	@echo "Running make $@..."
+	uv run ruff check --fix ./purch
 
 run-local: ## Run the app locally for faster development
 	@echo "Running make $@..."
 	make up-db
-	uv run fastapi dev pirch/main.py --port=8080
+	uv run fastapi dev purch/main.py --port=8080
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
@@ -34,4 +38,4 @@ up: ## Spin up docker containers to run application
 
 up-db: ## Just spin up the postgres container instance
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml up -d postgres
+	docker-compose --file=docker-compose.yml up -d postgres pgadmin

@@ -12,8 +12,8 @@ from plaid.model.item_public_token_exchange_request import (
 from uuid import UUID
 from datetime import date, timedelta
 
-from pirch.finance.plaid import client
-from pirch.utils.config import get_settings
+from purch.finance.plaid import client
+from purch.utils.config import get_settings
 
 
 settings = get_settings()
@@ -37,7 +37,7 @@ def create_plaid_link_token(user_id: UUID):
             language=settings.PLAID_LANGUAGE,
             user=LinkTokenCreateRequestUser(client_user_id=str(user_id)),
         )
-        if settings.PLAID_REDIRECT_URI != None:
+        if settings.PLAID_REDIRECT_URI is not None:
             request["redirect_uri"] = settings.PLAID_REDIRECT_URI
         if Products("statements") in settings.get_plaid_products():
             statements = LinkTokenCreateRequestStatements(

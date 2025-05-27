@@ -6,9 +6,9 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
-from pirch.utils.config import get_settings
-from pirch.user.model import User
-from pirch.user.repository import UserRepository
+from purch.utils.config import get_settings
+from purch.user.model import User
+from purch.user.repository import UserRepository
 
 
 settings = get_settings()

@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - pirch
+      - purch
 
   pirch:
     build:
@@ -23,10 +23,10 @@ services:
     depends_on:
       - postgres
     networks:
-      - pirch
+      - purch
 
 networks:
-  pirch:
+  purch:
 
 volumes:
   postgres_data:

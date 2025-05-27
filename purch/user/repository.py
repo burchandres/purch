@@ -7,8 +7,8 @@ from sqlmodel import (
     select,
 )
 
-from pirch.user.model import User
-from pirch.utils.config import get_settings
+from purch.user.model import User
+from purch.utils.config import get_settings
 
 
 settings = get_settings()

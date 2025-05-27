@@ -1,8 +1,9 @@
 import uuid
-from enum import StrEnum, auto
-from sqlmodel import SQLModel, Field
-from decimal import Decimal
 import datetime as dt
+
+from enum import StrEnum, auto
+from sqlmodel import SQLModel, Field, JSON, Column, ARRAY, String
+from decimal import Decimal
 
 
 class SalaryRates(StrEnum):
@@ -24,7 +25,9 @@ class User(SQLModel, table=True):
     username: str = Field(default="anders.buch", index=True, unique=True)
     password: str = Field(default="password")
     is_active: bool = Field(default=True)
-    plaid_access_token: str = Field(default=None)
+    plaid_access_tokens: list[str] = Field(
+        default=None, sa_column=Column(ARRAY(String))
+    )
     salary: Decimal = Field(default=3958.33)
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
-    category_budgets: dict = Field(default={"food": 350, "groceries": 350})
+    category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))

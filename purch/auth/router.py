@@ -3,15 +3,15 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from pirch.utils.config import get_settings
-from pirch.auth.schemas import Token
-from pirch.auth.security import (
+from purch.utils.config import get_settings
+from purch.auth.schemas import Token
+from purch.auth.security import (
     create_pirch_jwt_access_token,
     verify_password,
     hash_password,
 )
-from pirch.user.repository import UserRepository
-from pirch.user.model import User
+from purch.user.repository import UserRepository
+from purch.user.model import User
 
 
 settings = get_settings()

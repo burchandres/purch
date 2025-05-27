@@ -1,7 +1,7 @@
 import plaid
 
 from plaid.api import plaid_api
-from pirch.utils.config import get_settings
+from purch.utils.config import get_settings
 
 settings = get_settings()
 

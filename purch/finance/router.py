@@ -1,12 +1,12 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
-from pirch.user.model import User
-from pirch.finance.tokens import (
+from purch.user.model import User
+from purch.finance.tokens import (
     create_plaid_link_token,
     get_plaid_access_token,
 )
-from pirch.auth.security import get_current_active_user
+from purch.auth.security import get_current_active_user
 
 router = APIRouter(dependencies=[Depends(get_current_active_user)])
 

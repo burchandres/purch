@@ -4,11 +4,11 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from pirch.user.router import router as user_router
-from pirch.auth.router import router as auth_router
-from pirch.finance.router import router as finance_router
-from pirch.utils.project_version import version
-from pirch.utils.startup import init_db
+from purch.user.router import router as user_router
+from purch.auth.router import router as auth_router
+from purch.finance.router import router as finance_router
+from purch.utils.project_version import version
+from purch.utils.startup import init_db
 
 
 LOGGER = logging.getLogger(__name__)
@@ -23,8 +23,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Pirch",
-    description="Pirch is a personal financial management service to help manage the everyday and big picture financials of your life.",
+    title="Purch",
+    description="Purch is a personal financial management service to help manage the everyday and big picture financials of your life.",
     version=str(version).strip(),
     lifespan=lifespan,
 )
@@ -58,6 +58,6 @@ app.include_router(
 @app.get("/")
 def main():
     return {
-        "service": "Pirch",
+        "service": "Purch",
         "version": str(version).strip(),
     }

@@ -3,9 +3,9 @@ import uuid
 from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
-from pirch.user.repository import UserRepository
-from pirch.user.model import User
-from pirch.auth.security import oauth2_scheme, get_current_active_user
+from purch.user.repository import UserRepository
+from purch.user.model import User
+from purch.auth.security import oauth2_scheme, get_current_active_user
 
 router = APIRouter()
 

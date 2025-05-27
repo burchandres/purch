@@ -2,7 +2,7 @@ import logging
 
 from sqlmodel import create_engine, text
 
-from pirch.utils.config import get_settings
+from purch.utils.config import get_settings
 
 LOGGER = logging.getLogger(__name__)
 settings = get_settings()

@@ -1,5 +1,5 @@
 [project]
-name = "pirch"
+name = "Purch"
 version = "0.1.0"
 description = "Personal finance management tool"
 authors = [{name="Andres Burch", email="acburch22@gmail.com"}]
