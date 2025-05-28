@@ -2,3 +2,6 @@
 .ruff_cache
 __pycache__
 .env
+
+# sereno's IDE config
+pyrightconfig.json

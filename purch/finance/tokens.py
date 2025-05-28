@@ -24,7 +24,7 @@ def create_plaid_link_token(user_id: UUID):
     This generates a link token which allows the user to connect to Plaid via Link.
 
     Args:
-        user_id (UUID): User.id field value -- i.e. UUID generated upon user registration with Pirch
+        user_id (UUID): User.id field value -- i.e. UUID generated upon user registration with Purch
 
     Returns:
         str: The link token required to allow the user to register with Plaid via Link.

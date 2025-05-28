@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from purch.utils.config import get_settings
 from purch.auth.schemas import Token
 from purch.auth.security import (
-    create_pirch_jwt_access_token,
+    create_purch_jwt_access_token,
     verify_password,
     hash_password,
 )
@@ -36,7 +36,7 @@ def login_for_access_token(
         )
 
     access_token_expires = timedelta(minutes=settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_pirch_jwt_access_token(
+    access_token = create_purch_jwt_access_token(
         data={"sub": str(user.id)}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")

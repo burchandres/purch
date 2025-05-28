@@ -1,4 +1,4 @@
-include .env 
+include .env
 
 .PHONY: help
 help: ## Display available commands
@@ -32,7 +32,7 @@ setup: ## Set up venv and install dependencies
 	uv sync
 	@echo "Activate new virtual environment with source .venv/bin/activate"
 
-up: ## Spin up docker containers to run application
+up: setup ## Spin up docker containers to run application
 	@echo "Running make $@..."
 	docker-compose --file=docker-compose.yml up -d
 
