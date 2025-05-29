@@ -22,7 +22,7 @@ class Account(SQLModel):
     item_id: uuid.UUID = Field(index=True, foreign_key="items.id", nullable=False)
     name: str = Field(default="Venture X Credit Card")
 
-    transactions = list["Transaction"] = Relationship(back_populates="accounts", cascade_delete=True)
+    transactions: list["Transaction"] = Relationship(back_populates="accounts", cascade_delete=True)
 
 
 class Transaction(SQLModel):
