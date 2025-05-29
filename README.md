@@ -3,12 +3,45 @@ Purch is a personal finance management app for every-day and long term finances.
 
 
 ## Setup
+This application uses (uv)[https://docs.astral.sh/uv/] as its python manager (both version and venvs). You can install it with the official installer:
+
 ```bash
-cp `.env.template` to `.env` and fill in the actual values
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+or via homebrew:
+
+```bash
 brew install uv
 ```
 
+The official installation is recommended.
+
+To generate your `.env` file run
+
+```bash
+cp .env.template to .env
+```
+
+To generate a secrets key, in the REPL python, run
+
+```python
+import secrets; secrets.token_hex(16)
+```
+
+and that should output a secrets key that will populate the `SECRETS` environment variable.
+
+Now, run 
+
+```bash
+make setup
+```
+
+to install necessary packages for your virtual environment needed for development.
+
 ## Run
+
+To run the application, there are two options: Docker or Locally (but with postgres still running in a docker container).
 
 ### Docker
 ```bash
