@@ -1,10 +1,9 @@
-import logging
-
 from sqlmodel import create_engine, text
 
 from purch.utils.config import get_settings
+from purch.utils.logger import get_logger
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = get_logger(__name__)
 settings = get_settings()
 
 
