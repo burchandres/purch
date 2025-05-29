@@ -10,9 +10,6 @@ from purch.utils.repository import AbstractRepository
 
 
 class UserRepository(AbstractRepository):
-    def __init__(self):
-        super(AbstractRepository, self).__init__()
-
     def add(self, user: User):
         with Session(self.engine) as session:
             session.add(user)

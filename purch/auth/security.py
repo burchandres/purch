@@ -103,7 +103,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise credentials_exception
 
     # Get user from database
-    user = user_repo.get_user_via_id(id=user_id)
+    user = user_repo.get_via_id(id=user_id)
     if user is None:
         raise credentials_exception
     return user
