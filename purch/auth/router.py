@@ -4,14 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.utils.config import get_settings
-from purch.auth.schemas import Token
+from purch.auth.models import Token
 from purch.auth.security import (
     create_purch_jwt_access_token,
     verify_password,
     hash_password,
 )
 from purch.user.repository import UserRepository
-from purch.user.model import User
+from purch.user.models import User
 
 
 settings = get_settings()
@@ -27,7 +27,7 @@ def login_for_access_token(
     Login for access token.
     """
     user_repo = UserRepository()
-    user: User = user_repo.get_user_via_username(username=form_data.username)
+    user: User = user_repo.get_via_username(username=form_data.username)
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -50,7 +50,7 @@ def register_user(
     Register a new user.
     """
     user_repo = UserRepository()
-    existing_user = user_repo.get_user_via_username(username=user.username)
+    existing_user = user_repo.get_via_username(username=user.username)
     # If user already exists return bad request
     if existing_user:
         raise HTTPException(
@@ -59,5 +59,5 @@ def register_user(
         )
     # If not, add user to user user repo
     user.password = hash_password(user.password)
-    user_repo.add_user(user)
+    user_repo.add(user)
     return user

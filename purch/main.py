@@ -1,4 +1,3 @@
-import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,9 +8,10 @@ from purch.auth.router import router as auth_router
 from purch.finance.router import router as finance_router
 from purch.utils.project_version import version
 from purch.utils.startup import init_db
+from purch.utils.logger import get_logger
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = get_logger(__name__)
 
 
 @asynccontextmanager

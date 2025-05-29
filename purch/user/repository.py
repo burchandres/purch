@@ -1,46 +1,36 @@
 import uuid
 
 from sqlmodel import (
-    SQLModel,
-    create_engine,
     Session,
     select,
 )
 
-from purch.user.model import User
-from purch.utils.config import get_settings
+from purch.user.models import User
+from purch.utils.repository import AbstractRepository
 
 
-settings = get_settings()
-
-
-class UserRepository:
-    # TODO: change this to use DuckDB and Parquet files
-    db_type_default = "postgresql"
-
+class UserRepository(AbstractRepository):
     def __init__(self):
-        engine_url = f"{self.db_type_default}://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-        self.engine = create_engine(engine_url, echo=True)
-        SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
+        super(AbstractRepository, self).__init__()
 
-    def add_user(self, user: User):
+    def add(self, user: User):
         with Session(self.engine) as session:
             session.add(user)
             session.commit()
 
-    def get_user_via_id(self, id: uuid.UUID) -> User:
+    def get_via_id(self, id: uuid.UUID) -> User:
         with Session(self.engine) as session:
             statement = select(User).where(User.id == id)
             results = session.exec(statement)
             return results.first()
 
-    def get_user_via_username(self, username: str) -> User:
+    def get_via_username(self, username: str) -> User:
         with Session(self.engine) as session:
             statement = select(User).where(User.username == username)
             results = session.exec(statement)
             return results.first()
 
-    def delete_user(self, id: uuid.UUID):
+    def delete(self, id: uuid.UUID):
         with Session(self.engine) as session:
             statement = select(User).where(User.id == id)
             user = session.exec(statement).one()

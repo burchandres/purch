@@ -12,14 +12,14 @@ from plaid.model.item_public_token_exchange_request import (
 from uuid import UUID
 from datetime import date, timedelta
 
-from purch.finance.plaid import client
+from purch.finance.plaid import plaid_client
 from purch.utils.config import get_settings
 
 
 settings = get_settings()
 
 
-def create_plaid_link_token(user_id: UUID):
+def get_plaid_link_token(user_id: UUID):
     """
     This generates a link token which allows the user to connect to Plaid via Link.
 
@@ -45,7 +45,7 @@ def create_plaid_link_token(user_id: UUID):
             )
             request["statements"] = statements
         # create link token
-        response = client.link_token_create(request)
+        response = plaid_client.link_token_create(request)
         return response
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -64,7 +64,7 @@ def get_plaid_access_token(public_token: str):
     """
     try:
         exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
-        exchange_response = client.item_public_token_exchange(exchange_request)
+        exchange_response = plaid_client.item_public_token_exchange(exchange_request)
         return exchange_response
     except plaid.ApiException as e:
         return json.loads(e.body)

@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 from purch.utils.config import get_settings
-from purch.user.model import User
+from purch.user.models import User
 from purch.user.repository import UserRepository
 
 

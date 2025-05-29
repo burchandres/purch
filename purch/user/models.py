@@ -16,16 +16,18 @@ class SalaryRates(StrEnum):
 
 
 class User(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True, unique=True)
-    last_updated: float = Field(
-        default=dt.datetime.timestamp(dt.datetime.now(tz=dt.timezone.utc))
+    __tablename__ = "users"
+    id: uuid.UUID | None = Field(
+        default_factory=uuid.uuid4, primary_key=True, unique=True
+    )
+    last_updated: dt.datetime | None = Field(
+        default_factory=dt.datetime.now(dt.timezone.utc)
     )
     first_name: str = Field(default="Anders")
     last_name: str = Field(default="Buch")
     username: str = Field(default="anders.buch", index=True, unique=True)
     password: str = Field(default="password")
     is_active: bool = Field(default=True)
-    plaid_access_tokens: dict = Field(default_factory=dict, sa_column=Column(JSON))
     salary: Decimal = Field(default=3958.33)
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
     category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))

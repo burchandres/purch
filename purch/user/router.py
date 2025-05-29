@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
 from purch.user.repository import UserRepository
-from purch.user.model import User
+from purch.user.models import User
 from purch.auth.security import oauth2_scheme, get_current_active_user
 
 router = APIRouter()
@@ -28,5 +28,5 @@ def delete_user(
             detail="You can only delete your own account",
         )
     user_repo = UserRepository()
-    user_repo.delete_user(id=id)
+    user_repo.delete(id=id)
     return Response(status_code=200)
