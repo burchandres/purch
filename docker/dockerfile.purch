@@ -15,7 +15,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
 
-COPY pyproject.toml uv.lock README.md ./
+COPY pyproject.toml uv.lock LICENSE README.md ./
 COPY purch ./purch
 
 # Install dependencies
@@ -28,7 +28,9 @@ WORKDIR /app
 
 COPY purch ./purch
 COPY --from=builder /app/.venv /app/.venv 
-
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
+COPY --from=builder /app/LICENSE /app/LICENSE
+COPY --from=builder /app/uv.lock /app/uv.lock
 
 CMD ["/app/.venv/bin/fastapi", "dev", "purch/main.py", "--host", "0.0.0.0", "--port", "8080"]
 
