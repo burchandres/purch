@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
 from purch.user.repository import UserRepository
-from purch.user.models import User
+from purch.core.models import User
 from purch.auth.security import oauth2_scheme, get_current_active_user
 
 router = APIRouter()

@@ -11,7 +11,7 @@ from purch.auth.security import (
     hash_password,
 )
 from purch.user.repository import UserRepository
-from purch.user.models import User
+from purch.core.models import User
 
 
 settings = get_settings()

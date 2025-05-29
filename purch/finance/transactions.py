@@ -3,8 +3,8 @@ import plaid
 
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
 
-from finance.plaid import plaid_client
-from finance.models import Transaction
+from purch.finance.plaid import plaid_client
+from purch.core.models import Transaction
 
 # Some notes to consider when dealing with transactions...
 

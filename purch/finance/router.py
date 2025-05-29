@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
-from purch.user.models import User
+from purch.core.models import User
 from purch.finance.tokens import get_plaid_link_token, get_plaid_access_token
 from purch.auth.security import get_current_active_user
 

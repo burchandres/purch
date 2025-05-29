@@ -2,6 +2,7 @@ from sqlmodel import create_engine, text
 
 from purch.utils.config import get_settings
 from purch.utils.logger import get_logger
+from purch.utils.repository import AbstractRepository
 
 LOGGER = get_logger(__name__)
 settings = get_settings()
@@ -32,3 +33,6 @@ def init_db():
     except Exception as e:
         LOGGER.error(f"Error initializing database: {e}")
         raise
+
+    # initialize tables
+    _ = AbstractRepository()

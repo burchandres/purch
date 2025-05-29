@@ -5,7 +5,7 @@ from sqlmodel import (
     select,
 )
 
-from purch.user.models import User
+from purch.core.models import User
 from purch.utils.repository import AbstractRepository
 
 

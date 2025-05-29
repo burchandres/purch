@@ -1,13 +1,8 @@
 from abc import ABC, abstractmethod
-from sqlmodel import (
-    SQLModel,
-    create_engine,
-    Session
-)
+from sqlmodel import SQLModel, create_engine, Session
 from typing import Any
 
-from purch.user.models import User
-from purch.finance.models import Item, Account, Transaction
+from purch.core.models import User, Item, Account, Transaction
 from purch.utils.config import get_settings
 
 settings = get_settings()

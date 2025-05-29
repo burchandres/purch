@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from purch.finance.models import Item, Account, Transaction
+from purch.core.models import Item, Account, Transaction
 from purch.utils.repository import AbstractRepository
 
 

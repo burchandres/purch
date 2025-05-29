@@ -19,7 +19,7 @@ lint: ## Lint the backend portion of the project with ruff
 
 lint-check: ## Check the backend formatting and perform easy fixes
 	@echo "Running make $@..."
-	uv run ruff check --fix ./purch
+	uv run ruff check ./purch
 
 run-local: ## Run the app locally for faster development
 	@echo "Running make $@..."
@@ -32,7 +32,7 @@ setup: ## Set up venv and install dependencies
 	uv sync
 	@echo "Activate new virtual environment with source .venv/bin/activate"
 
-up: setup ## Spin up docker containers to run application
+up: ## Spin up docker containers to run application
 	@echo "Running make $@..."
 	docker-compose --file=docker-compose.yml up -d
 
