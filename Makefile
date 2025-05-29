@@ -24,7 +24,7 @@ lint-check: ## Check the backend formatting and perform easy fixes
 run-local: ## Run the app locally for faster development
 	@echo "Running make $@..."
 	make up-db
-	uv run fastapi dev purch/main.py --port=8080
+	DB_HOST=localhost uv run fastapi dev purch/main.py --port=8080
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
