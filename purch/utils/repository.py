@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from sqlmodel import (
     SQLModel,
     create_engine,
+    Session
 )
 from typing import Any
 
@@ -27,3 +28,8 @@ class AbstractRepository(ABC):
     @abstractmethod
     def delete(self, object: Any):
         pass
+
+    def execute(self, statement: Any):
+        with Session(self.engine) as session:
+            session.exec(statement)
+            session.commit()
