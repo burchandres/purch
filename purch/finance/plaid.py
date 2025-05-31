@@ -10,7 +10,7 @@ configuration = plaid.Configuration(
     api_key={
         "clientId": settings.PLAID_CLIENT_ID,
         "secret": settings.PLAID_SECRET.get_secret_value(),
-        "plaidVersion": "2023-09-29",
+        "plaidVersion": settings.PLAID_API_VERSION,
     },
 )
 

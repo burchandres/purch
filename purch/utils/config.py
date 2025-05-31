@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     PLAID_COUNTRY_CODES: str
     PLAID_REDIRECT_URI: str | None
     PLAID_LANGUAGE: str = "en"
+    PLAID_API_VERSION: str = '2020-09-14'
 
     class Config:
         env_file = ".env"

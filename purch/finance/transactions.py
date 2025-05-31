@@ -49,34 +49,33 @@ def get_transactions(plaid_access_token: str) -> dict[str, list[Transaction]]:
         plaid_access_token (str): Plaid generated access token after connecting bank account to link (i.e. creating a plaid item) to authorize plaid API requests.
 
     Returns:
-        list[Transaction]: All transactions we get from hitting /transactions/sync
+        dict: All transactions we get from hitting /transactions/sync with keys:
+            - 'added' -> list of newly added transactions
+            - 'modified' -> list of modified transactions
+            - 'removed' -> list of transaction ids that have been removed
     """
     added = []
     modified = []
     removed = []
     cursor = ""
     has_more = True
-    try:
-        # Iterate through each page of new transaction updates for item
-        while has_more:
-            request = TransactionsSyncRequest(
-                access_token=plaid_access_token,
-                cursor=cursor,
-            )
-            response = plaid_client.transactions_sync(request).to_dict()
-            cursor = response["next_cursor"]
-            # TODO: USE WEBHOOKS TO LISTEN FOR WHEN DATA IS UPDATED AND HAVE IT RUN IN THE BACKGROUND
-            if cursor == "":
-                time.sleep(2)
-                continue
-            # If cursor is not an empty string, we got results,
-            # so add this page of results
-            added.extend(response["added"])
-            modified.extend(response["modified"])
-            removed.extend(response["removed"])
-            has_more = response["has_more"]
+    # Iterate through each page of new transaction updates for item
+    while has_more:
+        request = TransactionsSyncRequest(
+            access_token=plaid_access_token,
+            cursor=cursor,
+        )
+        response = plaid_client.transactions_sync(request).to_dict()
+        cursor = response["next_cursor"]
+        # TODO: USE WEBHOOKS TO LISTEN FOR WHEN DATA IS UPDATED AND HAVE IT RUN IN THE BACKGROUND
+        if cursor == "":
+            time.sleep(2)
+            continue
+        # If cursor is not an empty string, we got results,
+        # so add this page of results
+        added.extend(response["added"])
+        modified.extend(response["modified"])
+        removed.extend(response["removed"])
+        has_more = response["has_more"]
 
-        return {"added": added, "modified": modified, "removed": removed}
-
-    except plaid.ApiException:
-        raise RuntimeError("Unable to pull transactions currently.")
+    return {"added": added, "modified": modified, "removed": removed}
