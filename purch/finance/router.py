@@ -18,8 +18,3 @@ def get_link_token(user: Annotated[User, Depends(get_current_active_user)]):
 def get_access_token(public_token: str):
     plaid_access_token = get_plaid_access_token(public_token=public_token)
     return Response(status_code=status.HTTP_200_OK, conten=plaid_access_token)
-
-
-@router.get("/transactions")
-def get_transactions(user: Annotated[User, Depends(get_current_active_user)]):
-    pass
