@@ -55,7 +55,7 @@ def register_user(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with given username already registered",
+            detail="User with given username is already registered",
         )
     # If not, add user to user user repo
     user.password = hash_password(user.password)
