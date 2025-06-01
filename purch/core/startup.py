@@ -2,16 +2,15 @@ from sqlmodel import create_engine, text
 
 from purch.utils.config import get_settings
 from purch.utils.logger import get_logger
-from purch.utils.repository import AbstractRepository
 
 LOGGER = get_logger(__name__)
-settings = get_settings()
 
 
 def init_db():
     LOGGER.debug("Initializing database...")
-    server_engine_url = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}"
-    # Create the server engine to intialize the purch db
+    settings = get_settings()  # Move settings initialization here for testing
+    server_engine_url = f"postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD.get_secret_value()}@{settings.DB_HOST}:{settings.DB_PORT}"
+    # Create the server engine to intialize the settings.DB_NAME db
     server_engine = create_engine(
         server_engine_url, echo=True, isolation_level="AUTOCOMMIT"
     )
@@ -33,6 +32,3 @@ def init_db():
     except Exception as e:
         LOGGER.error(f"Error initializing database: {e}")
         raise
-
-    # initialize tables
-    _ = AbstractRepository()

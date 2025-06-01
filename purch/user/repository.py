@@ -6,7 +6,7 @@ from sqlmodel import (
 )
 
 from purch.core.models import User
-from purch.utils.repository import AbstractRepository
+from purch.core.repository import AbstractRepository
 
 
 class UserRepository(AbstractRepository):

@@ -25,6 +25,12 @@ run-local: up-db ## Run the app locally for faster development
 	@echo "Running make $@..."
 	DB_HOST=localhost uv run fastapi dev purch/main.py --port=8080
 
+run-tests: ## Run tests
+	@echo "Running make $@..."
+	make up-db
+	python -m pytest -v
+	make down
+
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
 	uv venv

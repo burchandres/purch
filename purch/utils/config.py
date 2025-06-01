@@ -1,21 +1,25 @@
 import plaid
 
 from functools import lru_cache
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
-from purch.utils.finance import PlaidEnvs
+from purch.core.finance import PlaidEnvs
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=True
+    )
+
     PRODUCT_NAME: str = "Purch"
     # db settings, defaults to local dev
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_USERNAME: str = "default"
-    DB_PASSWORD: str = "password"
+    DB_PASSWORD: SecretStr = "password"
     DB_TYPE: str = "postgres"
     DB_NAME: str = "purch"
     # auth service settings
@@ -32,11 +36,6 @@ class Settings(BaseSettings):
     PLAID_COUNTRY_CODES: str
     PLAID_REDIRECT_URI: str | None
     PLAID_LANGUAGE: str = "en"
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
 
     def get_plaid_host(self):
         """Returns the appropriate Plaid Enum Environment variable based on PLAID_ENV value."""
@@ -57,8 +56,14 @@ class Settings(BaseSettings):
 
 
 @lru_cache
-def get_settings():
+def get_settings() -> Settings:
     """
-    Get settings from .env file file.
+    Instantiate Settings object.
+
+    Args:
+        test_env (bool): If true return Settings object instantiated with test.env file, else with .env file
+
+    Returns:
+        Settings
     """
     return Settings()

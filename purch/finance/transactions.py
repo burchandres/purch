@@ -33,7 +33,9 @@ from purch.core.models import Transaction
 # TODO: potentially return a dict[str, pl.DataFrame] (i.e. with the keys 'added', 'modified', 'removed')
 # TODO: upon user with purch and plaid, and we've stored the plaid_access_token we then go in and pull transactions
 #       then in the background, every 24 hours pull transactions for the day and update stuff
-def get_transactions(plaid_access_token: str) -> dict[str, list[Transaction]]:
+def sync_transactions(
+    plaid_access_token: str, initial_cursor: str
+) -> dict[str, list[Transaction]]:
     """
     This retrieves all output from the /transactions/sync endpoint of Plaid.
 
@@ -43,10 +45,11 @@ def get_transactions(plaid_access_token: str) -> dict[str, list[Transaction]]:
     - modified: All prior new transactions that had some aspect of their model change (usually description update or amount update)
         - All transactions in the modified section would just replaced their corresponding rows (identifiable via transaction_id) in the database
     - removed: Transactions that were negated
-        - Is just a list of dictionaries with a single key/value pair of (transaction_id: <transaction_id_value>)
+        - Is just a list of dictionaries with a single key/value pair of (transaction_id: transaction_id_value)
 
     Args:
         plaid_access_token (str): Plaid generated access token after connecting bank account to link (i.e. creating a plaid item) to authorize plaid API requests.
+        initial_cursor (str): Cursor marking last point in time we want to call the transactions/sync endpoint at -- these are per item
 
     Returns:
         dict: All transactions we get from hitting /transactions/sync with keys:
@@ -57,7 +60,7 @@ def get_transactions(plaid_access_token: str) -> dict[str, list[Transaction]]:
     added = []
     modified = []
     removed = []
-    cursor = ""
+    cursor = initial_cursor
     has_more = True
     # Iterate through each page of new transaction updates for item
     while has_more:
