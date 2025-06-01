@@ -15,9 +15,8 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    env_file: ./prod.env
     volumes:
-      - ./prod.env:/app/.env
+      - ./.env:/app/.env
     ports:
       - "8080:8080"
     depends_on:

@@ -3,16 +3,18 @@ from sqlmodel import SQLModel, create_engine, Session
 from typing import Any
 
 from purch.core.models import User, Item, Account, Transaction
-from purch.utils.config import get_settings
-
-settings = get_settings()
+from purch.utils.config import Settings
 
 
 class AbstractRepository(ABC):
     db_type_default = "postgresql"
 
-    def __init__(self):
-        engine_url = f"{self.db_type_default}://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    def __init__(self, settings: Settings):
+        engine_url = (
+            f"{self.db_type_default}://"
+            f"{settings.DB_USERNAME}:{settings.DB_PASSWORD.get_secret_value()}"
+            f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        )
         self.engine = create_engine(engine_url, echo=True)
         SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
 

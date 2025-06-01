@@ -46,7 +46,6 @@ def get_plaid_link_token(user_id: UUID):
     return response
 
 
-# TODO: make onSuccess function in frontend to feed to this endpoint
 def get_plaid_access_token(public_token: str):
     """
     Exchanges the generated public token by Link upon successful registration for a persistent access token.

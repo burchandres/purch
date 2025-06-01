@@ -1,40 +1,18 @@
 from sqlmodel import Session
 
 from purch.core.models import Item, Account, Transaction
-from purch.utils.repository import AbstractRepository
+from purch.core.repository import AbstractRepository
 
 
-class ItemRepository(AbstractRepository):
-    def add(self, item: Item):
+class FinanceRepository(AbstractRepository):
+    def add(self, object: Item | Account | Transaction):
         with Session(self.engine) as session:
-            session.add(item)
+            session.add(object)
             session.commit()
 
-    def delete(self, item: Item):
+    # TODO: handle updating an object: Item | Account | Transaction
+
+    def delete(self, item: Item | Account | Transaction):
         with Session(self.engine) as session:
             session.delete(item)
-            session.commit()
-
-
-class AccountRepository(AbstractRepository):
-    def add(self, account: Account):
-        with Session(self.engine) as session:
-            session.add(account)
-            session.commit()
-
-    def delete(self, account: Account):
-        with Session(self.engine) as session:
-            session.delete(account)
-            session.commit()
-
-
-class TransactionRepository(AbstractRepository):
-    def add(self, transaction: Transaction):
-        with Session(self.engine) as session:
-            session.add(transaction)
-            session.commit()
-
-    def delete(self, transaction: Transaction):
-        with Session(self.engine) as session:
-            session.delete(transaction)
             session.commit()

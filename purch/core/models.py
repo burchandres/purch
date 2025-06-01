@@ -29,7 +29,7 @@ class User(SQLModel, table=True):
     username: str = Field(default="anders.buch", index=True, unique=True)
     password: str = Field(default="password")
     is_active: bool = Field(default=True)
-    salary: decimal.Decimal = Field(default=3958.33)
+    salary: decimal.Decimal = Field(default=decimal.Decimal(3958.33))
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
     category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
@@ -44,8 +44,8 @@ class Item(SQLModel, table=True):
     id: str = Field(default="abc", primary_key=True, index=True, unique=True)
     user_id: uuid.UUID = Field(index=True, foreign_key="users.id", nullable=False)
     access_token: str = Field(nullable=False)
-    bank_name: str = Field(default="Capital One")
-    transaction_cursor: str = Field()
+    bank_name: str = Field(default="Capital One", nullable=False)
+    transaction_cursor: str | None = Field(default="")
 
     user: User = Relationship(back_populates="items")
     accounts: list["Account"] = Relationship(back_populates="item", cascade_delete=True)
