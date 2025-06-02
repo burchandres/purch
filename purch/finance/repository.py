@@ -4,15 +4,13 @@ from purch.core.models import Item, Account, Transaction
 from purch.core.repository import AbstractRepository
 
 
-class FinanceRepository(AbstractRepository):
-    def add(self, object: Item | Account | Transaction):
-        with Session(self.engine) as session:
-            session.add(object)
-            session.commit()
+class ItemRepository(AbstractRepository):
+    pass
 
-    # TODO: handle updating an object: Item | Account | Transaction
 
-    def delete(self, item: Item | Account | Transaction):
-        with Session(self.engine) as session:
-            session.delete(item)
-            session.commit()
+class AccountRepository(AbstractRepository):
+    pass
+
+
+class TransactionRepository(AbstractRepository):
+    pass
