@@ -1,3 +1,5 @@
+import datetime as dt
+
 from plaid.model.products import Products
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
@@ -17,7 +19,7 @@ from purch.utils.config import get_settings
 settings = get_settings()
 
 
-def get_plaid_link_token(user_id: UUID):
+def get_plaid_link_token(user_id: UUID) -> tuple[dict, dt.datetime]:
     """
     This generates a link token which allows the user to connect to Plaid via Link.
 
@@ -42,8 +44,9 @@ def get_plaid_link_token(user_id: UUID):
         )
         request["statements"] = statements
     # create link token
-    response = plaid_client.link_token_create(request)
-    return response
+    response: dict = plaid_client.link_token_create(request).to_dict()
+    expiration_time = response.pop("expiration", None)
+    return response, expiration_time
 
 
 def get_plaid_access_token(public_token: str):
@@ -57,5 +60,5 @@ def get_plaid_access_token(public_token: str):
         str: Returns the access token which will be persisted under User.plaid_access_token to communicate with plaid in the future.
     """
     exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
-    exchange_response = plaid_client.item_public_token_exchange(exchange_request)
+    exchange_response = plaid_client.item_public_token_exchange(exchange_request).to_dict()
     return exchange_response
