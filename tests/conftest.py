@@ -1,17 +1,31 @@
 import pytest
 import uuid
+import datetime as dt
+
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.exc import OperationalError
 from fastapi.testclient import TestClient
-from contextlib import contextmanager
 
 from purch.main import app
 from purch.utils.config import Settings, get_settings
 from purch.utils.logger import get_logger
 from purch.core.startup import init_db
+from purch.core.models import User
 
 
 LOGGER = get_logger(__name__)
+
+@pytest.fixture
+def test_user():
+    """Generate a test user in json form."""
+    test_user = User(
+        id=uuid.uuid4(),
+        last_updated=dt.datetime.now(dt.timezone.utc).timestamp()
+    )
+    test_user = test_user.model_dump()
+    test_user["salary"] = float(test_user["salary"])
+    test_user["id"] = test_user["id"].hex
+    return test_user
 
 @pytest.fixture
 def test_db_name():
@@ -68,6 +82,11 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     else:
         LOGGER.info(f"Test failed -- data preserved in db: {test_db_name}")
 
+
+@pytest.fixture
+def configure_get_active_user(monkeypatch, test_user):
+    monkeypatch.setattr("purch.finance.router.get_current_active_user", lambda: test_user)
+    return test_user
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)

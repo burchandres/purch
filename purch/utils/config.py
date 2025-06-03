@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # db settings, defaults to local dev
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_USERNAME: str = "default"
+    DB_USERNAME: str = "postgres"
     DB_PASSWORD: SecretStr = "password"
     DB_TYPE: str = "postgres"
     DB_NAME: str = "purch"
