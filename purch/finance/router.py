@@ -14,7 +14,6 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 @router.get("/link-token")
 def get_link_token(user: Annotated[User, Depends(get_current_active_user)]):
     try:
-        # TODO: do something with the expiration datetime
         plaid_link_token, _ = get_plaid_link_token(user_id=user.id)
         return Response(
             status_code=status.HTTP_200_OK, content=json.dumps(plaid_link_token)

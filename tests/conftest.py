@@ -83,12 +83,6 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         LOGGER.info(f"Test failed -- data preserved in db: {test_db_name}")
 
 
-@pytest.fixture
-def configure_get_active_user(monkeypatch, test_user):
-    monkeypatch.setattr("purch.finance.router.get_current_active_user", lambda: test_user)
-    return test_user
-
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     # Execute all other hooks to obtain the report object
@@ -114,7 +108,7 @@ def teardown_test_db(test_db_name: str):
 
 
 @pytest.fixture
-def test_client(configure_test_settings):
+def test_client(configure_test_settings, test_user):
     """
     Create a test client with proper database initialization.
     
@@ -123,11 +117,13 @@ def test_client(configure_test_settings):
     2. The test database is created before the application starts
     3. The application uses the test database throughout the test
     """
+    from purch.auth.security import get_current_active_user
     # Initialize the test database before creating the test client
     init_db()
     
     # Clear any existing overrides
     app.dependency_overrides = {}
+    app.dependency_overrides[get_current_active_user] = lambda: test_user
     
     # Create and yield the test client
     with TestClient(app) as client:

@@ -21,6 +21,7 @@ def test_get_link_token(
     link_token_response = test_client.get(
         LINK_TOKEN_URL
     )
+    print(link_token_response.json())
     assert link_token_response.status_code == status.HTTP_200_OK
-    # link_token_dict = link_token_response.json()
+    link_token_dict = link_token_response.json()
     

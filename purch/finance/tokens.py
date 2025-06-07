@@ -16,7 +16,6 @@ from purch.finance.plaid import plaid_client
 from purch.utils.config import get_settings
 
 
-
 def get_plaid_link_token(user_id: UUID) -> tuple[dict, dt.datetime]:
     """
     This generates a link token which allows the user to connect to Plaid via Link.
@@ -27,7 +26,9 @@ def get_plaid_link_token(user_id: UUID) -> tuple[dict, dt.datetime]:
     Returns:
         str: The link token required to allow the user to register with Plaid via Link.
     """
+    breakpoint()
     settings = get_settings()
+    breakpoint()
     request = LinkTokenCreateRequest(
         products=settings.get_plaid_products(),
         client_name=settings.PRODUCT_NAME,
@@ -43,6 +44,7 @@ def get_plaid_link_token(user_id: UUID) -> tuple[dict, dt.datetime]:
         )
         request["statements"] = statements
     # create link token
+    breakpoint()
     response: dict = plaid_client.link_token_create(request).to_dict()
     expiration_time = response.pop("expiration", None)
     return response, expiration_time
