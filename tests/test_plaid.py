@@ -15,7 +15,7 @@ SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_toke
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
 
-
+# TODO: this works when hitting the actual endpoint, why not in a test...?
 def test_get_link_token(
     test_client,
     configure_get_current_active_user
