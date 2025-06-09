@@ -28,7 +28,6 @@ class Settings(BaseSettings):
     SECRET_KEY: SecretStr
     ALGORITHM: str = "HS256"
     # PLAID ENV (temp, to be moved elsewhere probably)
-    PLAID_API_VERSION: str = "2020-09-14"
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
     PLAID_ENV: PlaidEnvs

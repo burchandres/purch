@@ -251,7 +251,7 @@ def test_delete_other_account(configure_test_settings, test_db_name, test_client
 def test_invalid_token(configure_test_settings, test_db_name, test_client):
     """Test that an invalid token is rejected."""
     # Try to use an invalid token
-    invalid_token = "invalid.token.format"
+    invalid_token = "invalid.token"
     current_user_response = test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {invalid_token}"}
