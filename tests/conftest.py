@@ -135,5 +135,6 @@ def test_client(configure_test_settings):
     3. The application uses the test database throughout the test
     """
     # Create and yield the test client
+    app.dependency_overrides = {}
     with TestClient(app) as client:
         yield client
