@@ -1,17 +1,36 @@
 import pytest
 import uuid
+import datetime as dt
+
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.exc import OperationalError
 from fastapi.testclient import TestClient
-from contextlib import contextmanager
 
 from purch.main import app
 from purch.utils.config import Settings, get_settings
 from purch.utils.logger import get_logger
-from purch.core.startup import init_db
+from purch.core.models import User
 
 
 LOGGER = get_logger(__name__)
+
+
+def dict_to_user_class(user_dict: dict) -> User:
+    user = User()
+    user.__dict__ = user_dict
+    return user
+
+@pytest.fixture
+def test_user():
+    """Generate a test user in json form."""
+    test_user = User(
+        id=uuid.uuid4(),
+        last_updated=dt.datetime.now(dt.timezone.utc).timestamp()
+    )
+    test_user = test_user.model_dump()
+    test_user["salary"] = float(test_user["salary"])
+    test_user["id"] = test_user["id"].hex
+    return test_user
 
 @pytest.fixture
 def test_db_name():
@@ -37,8 +56,10 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     get_settings.cache_clear()
     
     # Set the environment variable
+    test_db_name = test_db_name
     monkeypatch.setenv("DB_NAME", test_db_name)
     monkeypatch.setenv("DB_HOST", "localhost")
+    monkeypatch.setenv("PLAID_REDIRECT_URI", "http://localhost:5173/dashboard")
     
     # Create new settings instance (will pick up the environment variables)
     test_settings = Settings()
@@ -50,7 +71,8 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         "purch.auth.security.get_settings",
         "purch.finance.plaid.get_settings",
         "purch.finance.tokens.get_settings",
-        "purch.user.router.get_settings"
+        "purch.user.router.get_settings",
+        "purch.finance.router.get_settings"
     ]
     
     # Use lambda to ensure the same instance is returned each time
@@ -62,12 +84,11 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Check if test passed and clean up accordingly
     if hasattr(request.node, 'rep_call') and request.node.rep_call.passed:
         try:
-            teardown_test_db(test_db_name=test_db_name)
+            teardown_test_db(test_db_name=test_settings.DB_NAME)
         except OperationalError as e:
-            LOGGER.warning(f"Could not clean up test database {test_db_name}: {str(e)}")
+            LOGGER.warning(f"Could not clean up test database {test_settings.DB_NAME}: {str(e)}")
     else:
-        LOGGER.info(f"Test failed -- data preserved in db: {test_db_name}")
-
+        LOGGER.info(f"Test failed -- data preserved in db: {test_settings.DB_NAME}")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -95,6 +116,16 @@ def teardown_test_db(test_db_name: str):
 
 
 @pytest.fixture
+def configure_get_current_active_user(test_user):
+    from purch.auth.security import get_current_active_user
+    
+    # Clear any existing overrides
+    app.dependency_overrides = {}
+    user = dict_to_user_class(test_user)
+    app.dependency_overrides[get_current_active_user] = lambda: user
+
+
+@pytest.fixture
 def test_client(configure_test_settings):
     """
     Create a test client with proper database initialization.
@@ -104,12 +135,7 @@ def test_client(configure_test_settings):
     2. The test database is created before the application starts
     3. The application uses the test database throughout the test
     """
-    # Initialize the test database before creating the test client
-    init_db()
-    
-    # Clear any existing overrides
-    app.dependency_overrides = {}
-    
     # Create and yield the test client
+    app.dependency_overrides = {}
     with TestClient(app) as client:
         yield client

@@ -1,11 +1,11 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.utils.config import get_settings, Settings
-from purch.auth.models import Token
+from purch.auth.response_models import Token
 from purch.auth.security import (
     create_purch_jwt_access_token,
     verify_password,

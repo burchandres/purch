@@ -24,36 +24,34 @@ def jsonify_user(user: User):
     return json_user
 
 
-def test_user_registration(configure_test_settings, test_db_name, test_client):
+def test_user_registration(configure_test_settings, test_db_name, test_client, test_user):
     test_settings = configure_test_settings
     # make sure the settings are correct
     assert test_settings.DB_HOST == "localhost"
     assert test_settings.DB_NAME == test_db_name
     # actualy tests
-    test_user = User()
-    json_test_user = jsonify_user(test_user)
+    test_user = test_user
     response = test_client.post(
         REGISTER_URL,
-        json=json_test_user
+        json=test_user
     )
     # Check we get a 200 response
     assert response.status_code == status.HTTP_200_OK
     user_repository = UserRepository(settings=test_settings)
-    registered_user = user_repository.get_via_username(test_user.username)
+    registered_user = user_repository.get_via_username(test_user["username"])
     assert registered_user
-    assert registered_user.username == test_user.username
-    assert verify_password(test_user.password, registered_user.password)
+    assert registered_user.username == test_user["username"]
+    assert verify_password(test_user["password"], registered_user.password)
 
-def test_valid_user_login(configure_test_settings, test_db_name, test_client):
+def test_valid_user_login(configure_test_settings, test_db_name, test_client, test_user):
     """Test successful login with valid credentials using the OAuth2PasswordRequestForm format."""
     # Create a test user
-    test_user = User()
-    json_test_user = jsonify_user(test_user)
+    test_user = test_user
     
     # First register the user
     register_user_response = test_client.post(
         REGISTER_URL, 
-        json=json_test_user
+        json=test_user
     )
     # Check we get a 200 response
     assert register_user_response.status_code == status.HTTP_200_OK
@@ -62,8 +60,8 @@ def test_valid_user_login(configure_test_settings, test_db_name, test_client):
     login_response = test_client.post(
         LOGIN_URL,
         data={
-            "username": test_user.username,
-            "password": test_user.password,
+            "username": test_user["username"],
+            "password": test_user["password"],
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
@@ -78,15 +76,14 @@ def test_valid_user_login(configure_test_settings, test_db_name, test_client):
     assert response_data["token_type"] == "bearer"
     assert response_data["access_token"] is not None
 
-def test_invalid_password_login(configure_test_settings, test_db_name, test_client):
+def test_invalid_password_login(configure_test_settings, test_db_name, test_client, test_user):
     """Test login failure with invalid password."""
     # Create and register a test user
-    test_user = User()
-    json_test_user = jsonify_user(test_user)
+    test_user = test_user
     
     register_user_response = test_client.post(
         REGISTER_URL, 
-        json=json_test_user
+        json=test_user
     )
     assert register_user_response.status_code == status.HTTP_200_OK
     
@@ -94,7 +91,7 @@ def test_invalid_password_login(configure_test_settings, test_db_name, test_clie
     login_response = test_client.post(
         LOGIN_URL,
         data={
-            "username": test_user.username,
+            "username": test_user["username"],
             "password": "wrong_password",
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
@@ -118,15 +115,14 @@ def test_invalid_username_login(configure_test_settings, test_db_name, test_clie
     # Check we get a 401 Unauthorized response
     assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
-def test_token_structure(configure_test_settings, test_db_name, test_client):
+def test_token_structure(configure_test_settings, test_db_name, test_client, test_user):
     """Test the structure and content of the token response."""
     # Create and register a test user
-    test_user = User()
-    json_test_user = jsonify_user(test_user)
+    test_user = test_user
     
     register_user_response = test_client.post(
         REGISTER_URL, 
-        json=json_test_user
+        json=test_user
     )
     assert register_user_response.status_code == status.HTTP_200_OK
     
@@ -134,8 +130,8 @@ def test_token_structure(configure_test_settings, test_db_name, test_client):
     login_response = test_client.post(
         LOGIN_URL,
         data={
-            "username": test_user.username,
-            "password": test_user.password,
+            "username": test_user["username"],
+            "password": test_user["password"],
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
@@ -255,7 +251,7 @@ def test_delete_other_account(configure_test_settings, test_db_name, test_client
 def test_invalid_token(configure_test_settings, test_db_name, test_client):
     """Test that an invalid token is rejected."""
     # Try to use an invalid token
-    invalid_token = "invalid.token.format"
+    invalid_token = "invalid.token"
     current_user_response = test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {invalid_token}"}

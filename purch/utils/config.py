@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # db settings, defaults to local dev
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
-    DB_USERNAME: str = "default"
+    DB_USERNAME: str = "postgres"
     DB_PASSWORD: SecretStr = "password"
     DB_TYPE: str = "postgres"
     DB_NAME: str = "purch"
@@ -28,7 +28,6 @@ class Settings(BaseSettings):
     SECRET_KEY: SecretStr
     ALGORITHM: str = "HS256"
     # PLAID ENV (temp, to be moved elsewhere probably)
-    PLAID_API_VERSION: str = "2020-09-14"
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
     PLAID_ENV: PlaidEnvs

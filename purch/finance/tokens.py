@@ -11,13 +11,11 @@ from uuid import UUID
 from datetime import date, timedelta
 
 from purch.finance.plaid import plaid_client
-from purch.utils.config import get_settings
+from purch.finance.response_models import LinkTokenResponse
+from purch.utils.config import get_settings, Settings
 
 
-settings = get_settings()
-
-
-def get_plaid_link_token(user_id: UUID):
+def get_plaid_link_token(settings: Settings, user_id: UUID) -> LinkTokenResponse:
     """
     This generates a link token which allows the user to connect to Plaid via Link.
 
@@ -27,6 +25,7 @@ def get_plaid_link_token(user_id: UUID):
     Returns:
         str: The link token required to allow the user to register with Plaid via Link.
     """
+    settings = get_settings()
     request = LinkTokenCreateRequest(
         products=settings.get_plaid_products(),
         client_name=settings.PRODUCT_NAME,
@@ -42,8 +41,14 @@ def get_plaid_link_token(user_id: UUID):
         )
         request["statements"] = statements
     # create link token
-    response = plaid_client.link_token_create(request)
-    return response
+    response = plaid_client.link_token_create(request).to_dict()
+    # TODO: streamline this with a helper function if needed
+    link_token_response = LinkTokenResponse(
+        link_token=response["link_token"],
+        expiration=response["expiration"],
+        request_id=response["request_id"],
+    )
+    return link_token_response
 
 
 def get_plaid_access_token(public_token: str):
@@ -54,8 +59,13 @@ def get_plaid_access_token(public_token: str):
         public_token (str): The public token provided by link for a user.
 
     Returns:
-        str: Returns the access token which will be persisted under User.plaid_access_token to communicate with plaid in the future.
+        dict: Returns the access token response object which contains the following keys:
+            * access_token: will be persisted under User.plaid_access_token to communicate with plaid in the future.
+            * item_id: the item_id value associated with the Item associated with the returned access_token
+            * request_id: unique identifier for the request
     """
     exchange_request = ItemPublicTokenExchangeRequest(public_token=public_token)
-    exchange_response = plaid_client.item_public_token_exchange(exchange_request)
+    exchange_response = plaid_client.item_public_token_exchange(
+        exchange_request
+    ).to_dict()
     return exchange_response
