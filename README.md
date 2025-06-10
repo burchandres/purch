@@ -3,7 +3,7 @@ Purch is a personal finance management app for every-day and long term finances.
 
 
 ## Setup
-This application uses (uv)[https://docs.astral.sh/uv/] as its python manager (both version and venvs). You can install it with the official installer:
+This application uses [uv](https://docs.astral.sh/uv/) as its python manager (both version and venvs). You can install it with the official installer:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -29,7 +29,7 @@ To generate a secrets key, in the REPL python, run
 import secrets; secrets.token_hex(16)
 ```
 
-and that should output a secrets key that will populate the `SECRETS` environment variable.
+and that should output a secrets key that you must manuallly set as the `SECRETS` environment variable.
 
 Now, run 
 
