@@ -41,7 +41,6 @@ def get_plaid_link_token(settings: Settings, user_id: UUID) -> LinkTokenResponse
         )
         request["statements"] = statements
     # create link token
-    breakpoint()
     response = plaid_client.link_token_create(request).to_dict()
     # TODO: streamline this with a helper function if needed
     link_token_response = LinkTokenResponse(
