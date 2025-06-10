@@ -50,8 +50,8 @@ app.include_router(
 # Add core finance service for plaid integration
 app.include_router(
     router=finance_router,
-    prefix="/plaid",
-    tags=["plaid"],
+    prefix="/finance",
+    tags=["finance"],
 )
 
 

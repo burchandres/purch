@@ -9,13 +9,13 @@ from purch.finance.tokens import get_plaid_access_token
 #       ...getting access_token from a public_token
 #       ...pulling transactions
 
-BASE_FINANCE_URL = "/plaid"
-LINK_TOKEN_URL = BASE_FINANCE_URL + "/link-token"
+BASE_FINANCE_URL = "/finance"
+LINK_TOKEN_URL = BASE_FINANCE_URL + "/plaid/link-token"
 SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_token/create"
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
 
-# TODO: this works when hitting the actual endpoint, why not in a test...?
+
 def test_get_link_token(
     test_client,
     configure_get_current_active_user

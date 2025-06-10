@@ -13,15 +13,14 @@ from purch.utils.config import Settings, get_settings
 router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
-@router.get("/link-token", response_model=LinkTokenResponse)
+@router.get("/plaid/link-token", response_model=LinkTokenResponse)
 def get_link_token(
     user: Annotated[User, Depends(get_current_active_user)],
     settings: Annotated[Settings, Depends(get_settings)],
 ):
     try:
         plaid_link_token_response = get_plaid_link_token(
-            settings=settings, 
-            user_id=user.id
+            settings=settings, user_id=user.id
         )
         return plaid_link_token_response
     except plaid.ApiException as e:
@@ -29,7 +28,7 @@ def get_link_token(
 
 
 # TODO: When this endpoint is hit get access token and sync transactions in a background task
-@router.post("/access-token")
+@router.post("/plaid/access-token")
 def get_access_token(public_token: str):
     try:
         plaid_access_token = get_plaid_access_token(public_token=public_token)
