@@ -20,7 +20,7 @@ The official installation is recommended.
 To generate your `.env` file run
 
 ```bash
-cp .env.template to .env
+cp .env.template .env
 ```
 
 To generate a secrets key, in the REPL python, run
