@@ -2,6 +2,8 @@
 .ruff_cache
 __pycache__
 .env
+.vscode
+.pytest_cache
 
 # sereno's IDE config
 pyrightconfig.json
