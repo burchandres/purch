@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     )
     REDIS_DATABASE: int = Field(
         default=0,
-        description="which of the 16 redis databases (numbered 0-15) to connect to"
+        description="which of the 16 redis databases (numbered 0-15) to connect to",
     )
     # auth service settings
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
@@ -82,14 +82,14 @@ class Settings(BaseSettings):
                 lambda cc: CountryCode(cc.lstrip()), self.PLAID_COUNTRY_CODES.split(",")
             )
         )
-    
+
     def get_postgres_url(self):
         return (
             f"postgresql://"
             f"{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD.get_secret_value()}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DATABASE}"
         )
-    
+
     def get_redis_url(self):
         return (
             f"redis://"

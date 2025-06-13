@@ -1,16 +1,24 @@
 from functools import lru_cache
-from taskiq_redis import RedisStreamBroker, RedisAsyncResultBackend
+from taskiq import TaskiqScheduler
+from taskiq_redis import (
+    RedisStreamBroker,
+    RedisAsyncResultBackend,
+    RedisScheduleSource,
+)
 
 from purch.utils.config import get_settings
 
 
 @lru_cache
-def get_taskiq_broker():
+def setup_taskiq_broker_and_scheduler():
     settings = get_settings()
-    redis_url = settings.get_redis_url()
-    broker = RedisStreamBroker(
-        url=redis_url
-    ).with_result_backend(
-        RedisAsyncResultBackend(redis_url=redis_url)
+
+    broker = RedisStreamBroker(url=settings.get_redis_url()).with_result_backend(
+        RedisAsyncResultBackend(redis_url=settings.get_redis_url())
     )
-    return broker
+
+    scheduler = TaskiqScheduler(
+        broker=broker, sources=[RedisScheduleSource(url=settings.get_redis_url)]
+    )
+
+    return broker, scheduler
