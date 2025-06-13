@@ -58,7 +58,7 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Set the environment variable
     test_db_name = test_db_name
     monkeypatch.setenv("DB_NAME", test_db_name)
-    monkeypatch.setenv("DB_HOST", "localhost")
+    monkeypatch.setenv("POSTGRES_HOST", "localhost")
     monkeypatch.setenv("PLAID_REDIRECT_URI", "http://localhost:5173/dashboard")
     
     # Create new settings instance (will pick up the environment variables)

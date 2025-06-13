@@ -12,8 +12,8 @@ class AbstractRepository(ABC):
     def __init__(self, settings: Settings):
         engine_url = (
             f"{self.db_type_default}://"
-            f"{settings.DB_USERNAME}:{settings.DB_PASSWORD.get_secret_value()}"
-            f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+            f"{settings.POSTGRES_USERNAME}:{settings.POSTGRES_PASSWORD.get_secret_value()}"
+            f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.DB_NAME}"
         )
         self.engine = create_engine(engine_url, echo=True)
         SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
