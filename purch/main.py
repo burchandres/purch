@@ -1,3 +1,5 @@
+import taskiq_fastapi
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -24,7 +26,7 @@ async def lifespan(app: FastAPI):
     # Start up our taskiq broker
     if not broker.is_worker_process:
         await broker.startup()
-        
+
     yield
     # Shutdown code here
 
@@ -64,6 +66,8 @@ app.include_router(
     prefix="/finance",
     tags=["finance"],
 )
+
+taskiq_fastapi.init(broker, app)
 
 
 @app.get("/")

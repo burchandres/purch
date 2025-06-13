@@ -96,9 +96,7 @@ class Settings(BaseSettings):
 
     def get_redis_url(self):
         # TODO: figure out redis authentication and then add it to url once configured
-        return (
-            f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
-        )
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
 
 
 @lru_cache
