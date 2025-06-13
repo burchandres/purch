@@ -18,6 +18,9 @@ dependencies = [
     "ruff>=0.11.7",
     "sqlalchemy>=2.0.40",
     "sqlmodel>=0.0.24",
+    "taskiq-fastapi>=0.3.5",
+    "taskiq-redis>=1.0.9",
+    "taskiq[reload]>=0.11.17",
 ]
 
 [dependency-groups]

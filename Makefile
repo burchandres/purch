@@ -46,6 +46,6 @@ up: ## Spin up docker containers to run application
 	@echo "Running make $@..."
 	docker-compose --file=docker-compose.yml up -d
 
-up-db: ## Just spin up the postgres container instance
+up-db: ## Just spin up the postgres & redis containers instance
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml up -d postgres
+	docker-compose --file=docker-compose.yml up -d postgres redis
