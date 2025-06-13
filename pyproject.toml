@@ -16,7 +16,6 @@ dependencies = [
     "python-jose>=3.4.0",
     "pyyaml>=6.0.2",
     "ruff>=0.11.7",
-    "sqlalchemy>=2.0.40",
     "sqlmodel>=0.0.24",
     "taskiq-fastapi>=0.3.5",
     "taskiq-redis>=1.0.9",
@@ -29,6 +28,7 @@ dev = [
     "pytest>=8.3.5",
     "pytest-mock>=3.14.0",
     "requests>=2.32.3",
+    "sqlalchemy>=2.0.40",
 ]
 
 [build-system]

@@ -535,7 +535,6 @@ dependencies = [
     { name = "python-jose" },
     { name = "pyyaml" },
     { name = "ruff" },
-    { name = "sqlalchemy" },
     { name = "sqlmodel" },
     { name = "taskiq", extra = ["reload"] },
     { name = "taskiq-fastapi" },
@@ -548,6 +547,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-mock" },
     { name = "requests" },
+    { name = "sqlalchemy" },
 ]
 
 [package.metadata]
@@ -562,7 +562,6 @@ requires-dist = [
     { name = "python-jose", specifier = ">=3.4.0" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "ruff", specifier = ">=0.11.7" },
-    { name = "sqlalchemy", specifier = ">=2.0.40" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
     { name = "taskiq", extras = ["reload"], specifier = ">=0.11.17" },
     { name = "taskiq-fastapi", specifier = ">=0.3.5" },
@@ -575,6 +574,7 @@ dev = [
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-mock", specifier = ">=3.14.0" },
     { name = "requests", specifier = ">=2.32.3" },
+    { name = "sqlalchemy", specifier = ">=2.0.40" },
 ]
 
 [[package]]
