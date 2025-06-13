@@ -1,5 +1,6 @@
 services:
   postgres:
+    container_name: purch-postgres
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -8,6 +9,16 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - purch
+
+  redis:
+    container_name: purch-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - purch
 
@@ -29,3 +40,4 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:

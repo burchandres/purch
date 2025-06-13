@@ -71,9 +71,9 @@ def sync_transactions(
         response = plaid_client.transactions_sync(request).to_dict()
         cursor = response["next_cursor"]
         # TODO: USE WEBHOOKS TO LISTEN FOR WHEN DATA IS UPDATED AND HAVE IT RUN IN THE BACKGROUND
-        if cursor == "":
-            time.sleep(2)
-            continue
+        # if cursor == "":
+        #     time.sleep(2)
+        #     continue
         # If cursor is not an empty string, we got results,
         # so add this page of results
         added.extend(response["added"])
@@ -81,4 +81,4 @@ def sync_transactions(
         removed.extend(response["removed"])
         has_more = response["has_more"]
 
-    return {"added": added, "modified": modified, "removed": removed}
+    return {"added": added, "modified": modified, "removed": removed}, cursor
