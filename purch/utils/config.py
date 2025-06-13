@@ -40,20 +40,47 @@ class Settings(BaseSettings):
         description="name of the database folder all tables will be stored in"
     )
     # redis settings, defaults to local dev
-    REDIS_HOST: str = "localhost"
+    REDIS_HOST: str = Field(
+        default="localhost",
+        description="redis database host"
+    )
+    REDIS_PORT: int = Field(
+        default=6379,
+        description="redis database port"
+    )
+    REDIS_USERNAME: str = Field(
+        default="redis",
+        description="redis database username"
+    )
+    REDIS_PASSWORD: SecretStr = Field(
+        default="password",
+        description="redis database password"
+    )
     # auth service settings
-    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
+        default=30,
+        description="time, in minutes, the jwt lasts per user"
+    )
     # Secret key for JWT signing
-    SECRET_KEY: SecretStr
-    ALGORITHM: str = "HS256"
+    SECRET_KEY: SecretStr = Field(description="secret key used for password encryption")
+    ALGORITHM: str = Field(
+        default="HS256",
+        description="hashing algorithm used with secret_key for password encryption"
+    )
     # PLAID ENV
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
-    PLAID_ENV: PlaidEnvs
+    PLAID_ENV: PlaidEnvs = Field(
+        default=PlaidEnvs.sandbox.value,
+        description="when sandbox is set no real data can be pulled, primarily for testing. Production env is for deployment and real use"
+    )
     PLAID_PRODUCTS: str
     PLAID_COUNTRY_CODES: str
-    PLAID_REDIRECT_URI: str | None
-    PLAID_LANGUAGE: str = "en"
+    PLAID_REDIRECT_URI: str | None = Field(
+        default="http://localhost:5379/dashboard",
+        description="Required for OAuth institutions upon successful user registration via plaid"
+    )
+    PLAID_LANGUAGE: str = Field(default="en")
 
     def get_plaid_host(self):
         """Returns the appropriate Plaid Enum Environment variable based on PLAID_ENV value."""
