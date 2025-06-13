@@ -8,4 +8,9 @@ from purch.utils.config import get_settings
 def get_taskiq_broker():
     settings = get_settings()
     redis_url = settings.get_redis_url()
-    broker = RedisStreamBroker()
+    broker = RedisStreamBroker(
+        url=redis_url
+    ).with_result_backend(
+        RedisAsyncResultBackend(redis_url=redis_url)
+    )
+    return broker
