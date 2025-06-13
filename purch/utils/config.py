@@ -14,71 +14,51 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True
     )
 
-    PRODUCT_NAME: str = Field(
-        default="Purch",
-        description="Name of the finance app"
-    )
+    PRODUCT_NAME: str = Field(default="Purch", description="Name of the finance app")
     # postgres settings, defaults to local dev
     POSTGRES_HOST: str = Field(
-        default="localhost",
-        description="postgres database host"
+        default="localhost", description="postgres database host"
     )
-    POSTGRES_PORT: int = Field(
-        default=5432,
-        description="postgres database port"
-    )
+    POSTGRES_PORT: int = Field(default=5432, description="postgres database port")
     POSTGRES_USERNAME: str = Field(
-        default="postgres",
-        description="postgres database username"
+        default="postgres", description="postgres database username"
     )
     POSTGRES_PASSWORD: SecretStr = Field(
-        default="password",
-        description="postgres database password"
+        default="password", description="postgres database password"
     )
     DB_NAME: str = Field(
         default="purch",
-        description="name of the database folder all tables will be stored in"
+        description="name of the database folder all tables will be stored in",
     )
     # redis settings, defaults to local dev
-    REDIS_HOST: str = Field(
-        default="localhost",
-        description="redis database host"
-    )
-    REDIS_PORT: int = Field(
-        default=6379,
-        description="redis database port"
-    )
-    REDIS_USERNAME: str = Field(
-        default="redis",
-        description="redis database username"
-    )
+    REDIS_HOST: str = Field(default="localhost", description="redis database host")
+    REDIS_PORT: int = Field(default=6379, description="redis database port")
+    REDIS_USERNAME: str = Field(default="redis", description="redis database username")
     REDIS_PASSWORD: SecretStr = Field(
-        default="password",
-        description="redis database password"
+        default="password", description="redis database password"
     )
     # auth service settings
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=30,
-        description="time, in minutes, the jwt lasts per user"
+        default=30, description="time, in minutes, the jwt lasts per user"
     )
     # Secret key for JWT signing
     SECRET_KEY: SecretStr = Field(description="secret key used for password encryption")
     ALGORITHM: str = Field(
         default="HS256",
-        description="hashing algorithm used with secret_key for password encryption"
+        description="hashing algorithm used with secret_key for password encryption",
     )
     # PLAID ENV
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
     PLAID_ENV: PlaidEnvs = Field(
         default=PlaidEnvs.sandbox.value,
-        description="when sandbox is set no real data can be pulled, primarily for testing. Production env is for deployment and real use"
+        description="when sandbox is set no real data can be pulled, primarily for testing. Production env is for deployment and real use",
     )
     PLAID_PRODUCTS: str
     PLAID_COUNTRY_CODES: str
     PLAID_REDIRECT_URI: str | None = Field(
         default="http://localhost:5379/dashboard",
-        description="Required for OAuth institutions upon successful user registration via plaid"
+        description="Required for OAuth institutions upon successful user registration via plaid",
     )
     PLAID_LANGUAGE: str = Field(default="en")
 
