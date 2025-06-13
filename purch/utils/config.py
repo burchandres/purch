@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: SecretStr = Field(
         default="password", description="postgres database password"
     )
-    DB_NAME: str = Field(
+    POSTGRES_DATABASE: str = Field(
         default="purch",
         description="name of the database folder all tables will be stored in",
     )
@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     REDIS_USERNAME: str = Field(default="redis", description="redis database username")
     REDIS_PASSWORD: SecretStr = Field(
         default="password", description="redis database password"
+    )
+    REDIS_DATABASE: int = Field(
+        default=0,
+        description="which of the 16 redis databases (numbered 0-15) to connect to"
     )
     # auth service settings
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
@@ -77,6 +81,20 @@ class Settings(BaseSettings):
             map(
                 lambda cc: CountryCode(cc.lstrip()), self.PLAID_COUNTRY_CODES.split(",")
             )
+        )
+    
+    def get_postgres_url(self):
+        return (
+            f"postgresql://"
+            f"{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD.get_secret_value()}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DATABASE}"
+        )
+    
+    def get_redis_url(self):
+        return (
+            f"redis://"
+            f"{self.REDIS_USERNAME}:{self.REDIS_PASSWORD.get_secret_value()}"
+            f"@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
         )
 
 

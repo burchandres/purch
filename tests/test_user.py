@@ -28,7 +28,7 @@ def test_user_registration(configure_test_settings, test_db_name, test_client, t
     test_settings = configure_test_settings
     # make sure the settings are correct
     assert test_settings.POSTGRES_HOST == "localhost"
-    assert test_settings.DB_NAME == test_db_name
+    assert test_settings.POSTGRES_DATABASE == test_db_name
     # actualy tests
     test_user = test_user
     response = test_client.post(

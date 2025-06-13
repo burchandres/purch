@@ -46,7 +46,7 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     
     This fixture:
     1. Clears the settings cache to ensure fresh settings
-    2. Sets a unique DB_NAME environment variable 
+    2. Sets a unique POSTGRES_DATABASE environment variable 
     3. Creates a new Settings instance with the test database name
     4. Patches all modules that use settings to use our test instance
     5. Yields the test_settings object for use in tests
@@ -57,7 +57,7 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     
     # Set the environment variable
     test_db_name = test_db_name
-    monkeypatch.setenv("DB_NAME", test_db_name)
+    monkeypatch.setenv("POSTGRES_DATABASE", test_db_name)
     monkeypatch.setenv("POSTGRES_HOST", "localhost")
     monkeypatch.setenv("PLAID_REDIRECT_URI", "http://localhost:5173/dashboard")
     
@@ -84,11 +84,11 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Check if test passed and clean up accordingly
     if hasattr(request.node, 'rep_call') and request.node.rep_call.passed:
         try:
-            teardown_test_db(test_db_name=test_settings.DB_NAME)
+            teardown_test_db(test_db_name=test_settings.POSTGRES_DATABASE)
         except OperationalError as e:
-            LOGGER.warning(f"Could not clean up test database {test_settings.DB_NAME}: {str(e)}")
+            LOGGER.warning(f"Could not clean up test database {test_settings.POSTGRES_DATABASE}: {str(e)}")
     else:
-        LOGGER.info(f"Test failed -- data preserved in db: {test_settings.DB_NAME}")
+        LOGGER.info(f"Test failed -- data preserved in db: {test_settings.POSTGRES_DATABASE}")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -103,6 +103,7 @@ def pytest_runtest_makereport(item, call):
 
 def teardown_test_db(test_db_name: str):
     """Attempt to clean up the test database. Logs warning if unsuccessful."""
+    # TODO: potentially change this to pull from settings and not be hardcoded
     db_uri = f"postgresql://postgres:password@localhost:5432"
     admin_engine = create_engine(db_uri, isolation_level="AUTOCOMMIT")
     try:

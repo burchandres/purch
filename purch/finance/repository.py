@@ -1,10 +1,10 @@
 from sqlmodel import Session
 
 from purch.core.models import Item, Account, Transaction
-from purch.core.repository import AbstractRepository
+from purch.core.repository import AbstractPostgresRepository
 
 
-class FinanceRepository(AbstractRepository):
+class FinanceRepository(AbstractPostgresRepository):
     def add(self, object: Item | Account | Transaction):
         with Session(self.engine) as session:
             session.add(object)
