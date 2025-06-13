@@ -17,7 +17,7 @@ def setup_taskiq_broker_and_scheduler():
         RedisAsyncResultBackend(redis_url=settings.get_redis_url())
     )
 
-    redis_source = RedisScheduleSource(url=settings.get_redis_url)
+    redis_source = RedisScheduleSource(url=settings.get_redis_url())
 
     scheduler = TaskiqScheduler(broker=broker, sources=[redis_source])
 

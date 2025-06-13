@@ -28,7 +28,7 @@ lint-check: ## Check the backend formatting and perform easy fixes
 
 run-local: up-db ## Run the app locally for faster development
 	@echo "Running make $@..."
-	POSTGRES_HOST=localhost uv run fastapi dev purch/main.py --port=8080
+	POSTGRES_HOST=localhost REDIS_HOST=localhost uv run fastapi dev purch/main.py --port=8080
 
 run-tests: ## Run tests
 	@echo "Running make $@..."

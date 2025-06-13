@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
     # Start up our taskiq broker
     if not broker.is_worker_process:
         await broker.startup()
+        
     yield
     # Shutdown code here
 

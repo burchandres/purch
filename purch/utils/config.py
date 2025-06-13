@@ -30,6 +30,7 @@ class Settings(BaseSettings):
         default="purch",
         description="name of the database folder all tables will be stored in",
     )
+
     # redis settings, defaults to local dev
     REDIS_HOST: str = Field(default="localhost", description="redis database host")
     REDIS_PORT: int = Field(default=6379, description="redis database port")
@@ -41,16 +42,19 @@ class Settings(BaseSettings):
         default=0,
         description="which of the 16 redis databases (numbered 0-15) to connect to",
     )
+
     # auth service settings
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
         default=30, description="time, in minutes, the jwt lasts per user"
     )
+
     # Secret key for JWT signing
     SECRET_KEY: SecretStr = Field(description="secret key used for password encryption")
     ALGORITHM: str = Field(
         default="HS256",
         description="hashing algorithm used with secret_key for password encryption",
     )
+
     # PLAID ENV
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
@@ -91,10 +95,9 @@ class Settings(BaseSettings):
         )
 
     def get_redis_url(self):
+        # TODO: figure out redis authentication and then add it to url once configured
         return (
-            f"redis://"
-            f"{self.REDIS_USERNAME}:{self.REDIS_PASSWORD.get_secret_value()}"
-            f"@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
+            f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
         )
 
 
