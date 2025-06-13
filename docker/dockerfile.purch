@@ -31,7 +31,3 @@ COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/pyproject.toml /app/pyproject.toml
 COPY --from=builder /app/LICENSE /app/LICENSE
 COPY --from=builder /app/uv.lock /app/uv.lock
-
-CMD ["/app/.venv/bin/fastapi", "dev", "purch/main.py", "--host", "0.0.0.0", "--port", "8080"]
-
-

@@ -19,6 +19,12 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
     networks:
       - purch
 
@@ -26,6 +32,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
+    command: /app/.venv/bin/fastapi dev purch/main.py --host 0.0.0.0 --port 8080
     volumes:
       - ./.env:/app/.env
     ports:
@@ -35,6 +42,37 @@ services:
     networks:
       - purch
 
+  taskiq-worker:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.purch
+    command: /app/.venv/bin/taskiq worker purch.core:broker
+    volumes:
+      - ./.env:/app/.env
+    depends_on:
+      redis:
+        condition: service_healthy 
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+    networks:
+      - purch
+
+  taskiq-scheduler:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.purch
+    command: /app/.venv/bin/taskiq scheduler purch.core:scheduler
+    volumes:
+      - ./.env:/app/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - purch
+
+  
 networks:
   purch:
 
