@@ -18,7 +18,7 @@ LOGGER = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup code here
-    
+
     # Start up the database
     init_db()
     # Start up our taskiq broker
