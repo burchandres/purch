@@ -11,19 +11,23 @@ logger = get_logger(__name__)
 
 
 @broker.task(retry_on_error=True)
-async def create_and_store_item_and_accounts(access_token: str, item_id: str, user: User):
+async def create_and_store_item_and_accounts(
+    access_token: str, item_id: str, user: User
+):
     # create and store item
     store_item_task = await store_item.kiq(
-        access_token=access_token,
-        item_id=item_id,
-        user=user
+        access_token=access_token, item_id=item_id, user=user
     )
     # wait for above task to finish
     store_item_result = await store_item_task.wait_result()
     if store_item_result.is_err:
-        raise RuntimeError(f"error creating and storing item {item_id} for user {user.id}")
+        raise RuntimeError(
+            f"error creating and storing item {item_id} for user {user.id}"
+        )
     # fire off task to create and store accounts associated with above item
-    await store_accounts.kiq(access_token=access_token, item=store_item_result.return_value)
+    await store_accounts.kiq(
+        access_token=access_token, item=store_item_result.return_value
+    )
     logger.debug(f"Success creating and storing items for user {user.id}")
 
 
@@ -82,9 +86,7 @@ async def store_accounts(access_token: str, item: Item):
             id=plaid_account["account_id"], name=plaid_account["name"], item=item
         )
         finance_repo.add(account)
-        logger.debug(
-            f"Pushed account {account.id} tied to item {account.item.id}."
-        )
+        logger.debug(f"Pushed account {account.id} tied to item {account.item.id}.")
 
 
 # Some notes to consider when dealing with transactions...
@@ -164,4 +166,3 @@ async def sync_transactions(
         has_more = response["has_more"]
 
     return {"added": added, "modified": modified, "removed": removed}, cursor
-
