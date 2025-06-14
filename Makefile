@@ -7,11 +7,11 @@ help: ## Display available commands
 
 build: ## Build the docker image(s)
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml build --force-rm
+	docker compose --file=docker-compose.yml build --force-rm
 
 down: ## Bring down the docker containers
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml down
+	docker compose --file=docker-compose.yml down
 
 lint: ## Run both lint-format and lint-check
 	@echo "Running make $@..."
@@ -33,19 +33,19 @@ run-local: up-db ## Run the app locally for faster development
 run-tests: ## Run tests
 	@echo "Running make $@..."
 	make up-db
-	python -m pytest -v
+	uv run pytest -v
 	make down
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
 	uv venv
-	uv sync
+	uv sync --dev
 	@echo "Activate new virtual environment with source .venv/bin/activate"
 
 up: ## Spin up docker containers to run application
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml up -d
+	docker compose --file=docker-compose.yml up -d
 
 up-db: ## Just spin up the postgres & redis containers instance
 	@echo "Running make $@..."
-	docker-compose --file=docker-compose.yml up -d postgres redis
+	docker compose --file=docker-compose.yml up -d postgres redis
