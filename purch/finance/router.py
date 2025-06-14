@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Response, status
 from purch.core.models import User
 from purch.finance.tokens import get_plaid_link_token, get_plaid_access_token
 from purch.finance.response_models import LinkTokenResponse
-from purch.finance.tasks import create_and_store_item_and_accounts
+from purch.finance.tasks import create_and_store_item_and_accounts, sync_transactions
 from purch.auth.security import get_current_active_user
 from purch.utils.config import Settings, get_settings
 
@@ -44,7 +44,12 @@ async def exchange_for_access_token(
             item_id=plaid_access_token['item_id'],
             user=user
         )
-        return Response(status_code=status.HTTP_200_OK, content="Syncing items and accounts for you")
+        # TODO: figure out the sync transactions task
+        # await sync_transactions.kiq(
+        #     plaid_access_token=plaid_access_token,
+        #     initial_cursor=''
+        # )
+        return Response(status_code=status.HTTP_200_OK, content="Syncing information for you")
 
     except (TaskiqResultTimeoutError, plaid.ApiException) as e:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e)
