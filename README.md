@@ -23,13 +23,13 @@ To generate your `.env` file run
 cp .env.template .env
 ```
 
-To generate a secrets key, in the REPL python, run
+To generate a secret key, in the python REPL, run
 
 ```python
 import secrets; secrets.token_hex(16)
 ```
 
-and that should output a secrets key that you must manuallly set as the `SECRETS` environment variable.
+and that should output a secrets key that you must manuallly set as the `SECRET_KEY` environment variable.
 
 Now, run 
 

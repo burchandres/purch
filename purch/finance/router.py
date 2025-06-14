@@ -56,6 +56,7 @@ async def exchange_for_access_token(
         store_accounts_result = await store_accounts_task.wait_result()
         if store_accounts_result.is_err:
             raise RuntimeError(f"error encountered while running store_accounts_task for item {store_item_result.return_value.id}")
+        return Response(status_code=status.HTTP_200_OK, content="Success")
 
     except (TaskiqResultTimeoutError, plaid.ApiException) as e:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e)
