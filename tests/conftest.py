@@ -12,7 +12,7 @@ from purch.utils.logger import get_logger
 from purch.core.models import User
 
 
-LOGGER = get_logger(__name__)
+logger = get_logger(__name__)
 
 
 def dict_to_user_class(user_dict: dict) -> User:
@@ -86,9 +86,9 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         try:
             teardown_test_db(test_db_name=test_settings.POSTGRES_DATABASE)
         except OperationalError as e:
-            LOGGER.warning(f"Could not clean up test database {test_settings.POSTGRES_DATABASE}: {str(e)}")
+            logger.warning(f"Could not clean up test database {test_settings.POSTGRES_DATABASE}: {str(e)}")
     else:
-        LOGGER.info(f"Test failed -- data preserved in db: {test_settings.POSTGRES_DATABASE}")
+        logger.info(f"Test failed -- data preserved in db: {test_settings.POSTGRES_DATABASE}")
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -110,9 +110,9 @@ def teardown_test_db(test_db_name: str):
         with Session(admin_engine) as session:
             session.exec(text(f"DROP DATABASE {test_db_name}"))
             session.commit()
-        LOGGER.debug(f"Successfully cleaned up test database {test_db_name}")
+        logger.debug(f"Successfully cleaned up test database {test_db_name}")
     except Exception as e:
-        LOGGER.warning(f"Failed to clean up test database {test_db_name}: {str(e)}")
+        logger.warning(f"Failed to clean up test database {test_db_name}: {str(e)}")
         raise
 
 

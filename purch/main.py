@@ -14,7 +14,7 @@ from purch.core.startup import init_db
 from purch.utils.logger import get_logger
 
 
-LOGGER = get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
