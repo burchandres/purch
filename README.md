@@ -29,7 +29,7 @@ To generate a secret key, in the python REPL, run
 import secrets; secrets.token_hex(16)
 ```
 
-and that should output a secrets key that you must manuallly set as the `SECRET_KEY` environment variable.
+and that should output a secrets key that you must manuallly set as the `SECRET_KEY` in your .env, without quotes.
 
 Now, run 
 

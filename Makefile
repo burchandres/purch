@@ -41,7 +41,7 @@ run-tests: ## Run tests
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
 	uv venv
-	uv sync
+	uv sync --dev
 	@echo "Activate new virtual environment with source .venv/bin/activate"
 
 up: ## Spin up docker containers to run application
