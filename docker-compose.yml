@@ -53,8 +53,6 @@ services:
       redis:
         condition: service_healthy 
     restart: unless-stopped
-    deploy:
-      replicas: 2
     networks:
       - purch
 

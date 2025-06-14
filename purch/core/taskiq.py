@@ -1,5 +1,5 @@
 from functools import lru_cache
-from taskiq import TaskiqScheduler
+from taskiq import TaskiqScheduler, SimpleRetryMiddleware
 from taskiq_redis import (
     RedisStreamBroker,
     RedisAsyncResultBackend,
@@ -15,6 +15,8 @@ def setup_taskiq_broker_and_scheduler():
 
     broker = RedisStreamBroker(url=settings.get_redis_url()).with_result_backend(
         RedisAsyncResultBackend(redis_url=settings.get_redis_url())
+    ).with_middlewares(
+        SimpleRetryMiddleware(default_retry_count=3)
     )
 
     redis_source = RedisScheduleSource(url=settings.get_redis_url())

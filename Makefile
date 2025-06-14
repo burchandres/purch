@@ -29,11 +29,13 @@ lint-check: ## Check the backend formatting and perform easy fixes
 run-local: up-db ## Run the app locally for faster development
 	@echo "Running make $@..."
 	POSTGRES_HOST=localhost REDIS_HOST=localhost uv run fastapi dev purch/main.py --port=8080
+	uv run taskiq worker purch.core:broker
+	uv run taskiq scheduler purch.core:scheduler
 
 run-tests: ## Run tests
 	@echo "Running make $@..."
 	make up-db
-	python -m pytest -v
+	uv run pytest -v
 	make down
 
 setup: ## Set up venv and install dependencies
