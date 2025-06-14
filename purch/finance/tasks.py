@@ -14,6 +14,7 @@ logger = get_logger(__name__)
 async def create_and_store_item_and_accounts(
     access_token: str, item_id: str, user: User
 ):
+    logger.debug(f"creating and storing item and accounts for user {user.id}")
     # create and store item
     store_item_task = await store_item.kiq(
         access_token=access_token, item_id=item_id, user=user
@@ -28,7 +29,6 @@ async def create_and_store_item_and_accounts(
     await store_accounts.kiq(
         access_token=access_token, item=store_item_result.return_value
     )
-    logger.debug(f"Success creating and storing items for user {user.id}")
 
 
 @broker.task()
