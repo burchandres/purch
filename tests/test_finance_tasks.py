@@ -1,9 +1,10 @@
 import json
 import requests
+import pytest
 
 from fastapi import status
 from purch.finance.tokens import get_plaid_access_token
-from purch.finance.transactions import sync_transactions
+from purch.finance.tasks import sync_transactions
 
 BASE_FINANCE_URL = "/finance"
 LINK_TOKEN_URL = BASE_FINANCE_URL + "/plaid/link-token"
@@ -11,7 +12,8 @@ SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_toke
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
 
-def test_get_transactions(
+@pytest.mark.anyio
+async def test_sync_transactions(
     configure_test_settings,
     configure_get_current_active_user,
     test_client
@@ -40,10 +42,12 @@ def test_get_transactions(
         public_token=public_token_response_json["public_token"]
     )
     # hit transactions endpoint
-    transactions, _ = sync_transactions(
+    sync_transactions_task = await sync_transactions.kiq(
         access_token_response["access_token"], 
         initial_cursor=''
     )
+    sync_transactions_result = await sync_transactions_task.wait_result()
+    transactions, _ = sync_transactions_result.return_value
     assert "added" in transactions
     assert "modified" in transactions
     assert "removed" in transactions

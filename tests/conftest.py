@@ -5,6 +5,7 @@ import datetime as dt
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.exc import OperationalError
 from fastapi.testclient import TestClient
+from taskiq import InMemoryBroker
 
 from purch.main import app
 from purch.utils.config import Settings, get_settings
@@ -19,6 +20,28 @@ def dict_to_user_class(user_dict: dict) -> User:
     user = User()
     user.__dict__ = user_dict
     return user
+
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
+
+@pytest.fixture(autouse=True)
+def configure_test_taskiq_broker(monkeypatch):
+    broker = InMemoryBroker()
+    # patch the broker 
+    modules_to_patch = [
+        "purch.core.broker",
+        "purch.finance.tasks.broker",
+        "purch.main.broker",
+    ]
+    for module in modules_to_patch:
+        monkeypatch.setattr(module, broker)
+    # patch the configure_taskiq_broker_and_scheduler function
+    from purch.core.taskiq import setup_taskiq_broker_and_scheduler
+    setup_taskiq_broker_and_scheduler.cache_clear()
+    monkeypatch.setattr("purch.core.setup_taskiq_broker_and_scheduler", lambda: broker)
+
+    return broker
 
 @pytest.fixture
 def test_user():
@@ -58,8 +81,6 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Set the environment variable
     test_db_name = test_db_name
     monkeypatch.setenv("POSTGRES_DATABASE", test_db_name)
-    monkeypatch.setenv("POSTGRES_HOST", "localhost")
-    monkeypatch.setenv("PLAID_REDIRECT_URI", "http://localhost:5173/dashboard")
     
     # Create new settings instance (will pick up the environment variables)
     test_settings = Settings()
@@ -72,7 +93,8 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         "purch.finance.plaid.get_settings",
         "purch.finance.tokens.get_settings",
         "purch.user.router.get_settings",
-        "purch.finance.router.get_settings"
+        "purch.finance.router.get_settings",
+        "purch.core.taskiq.get_settings",
     ]
     
     # Use lambda to ensure the same instance is returned each time
@@ -127,7 +149,7 @@ def configure_get_current_active_user(test_user):
 
 
 @pytest.fixture
-def test_client(configure_test_settings):
+def test_client(configure_test_settings, configure_test_taskiq_broker):
     """
     Create a test client with proper database initialization.
     

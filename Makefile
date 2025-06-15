@@ -11,32 +11,20 @@ build: ## Build the docker image(s)
 
 down: ## Bring down the docker containers
 	@echo "Running make $@..."
-	docker compose --file=docker-compose.yml down
+	docker compose --file=docker-compose.yml --file=docker-compose.test.yml down
 
 lint: ## Run both lint-format and lint-check
 	@echo "Running make $@..."
 	make lint-format
 	make lint-check
 
-lint-format: ## Lint the backend portion of the project with ruff
+lint-format: ## Lint the project with ruff
 	@echo "Running make $@..."
 	uv run ruff format ./purch
 
-lint-check: ## Check the backend formatting and perform easy fixes
+lint-check: ## Check the formatting and perform easy fixes
 	@echo "Running make $@..."
 	uv run ruff check ./purch
-
-run-local: up-db ## Run the app locally for faster development
-	@echo "Running make $@..."
-	POSTGRES_HOST=localhost REDIS_HOST=localhost uv run fastapi dev purch/main.py --port=8080
-	uv run taskiq worker purch.core:broker
-	uv run taskiq scheduler purch.core:scheduler
-
-run-tests: ## Run tests
-	@echo "Running make $@..."
-	make up-db
-	uv run pytest -v
-	make down
 
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
@@ -48,6 +36,8 @@ up: ## Spin up docker containers to run application
 	@echo "Running make $@..."
 	docker compose --file=docker-compose.yml up -d
 
-up-db: ## Just spin up the postgres & redis containers instance
+up-tests: ## Spin up containers for testing from test docker-compose file
 	@echo "Running make $@..."
-	docker compose --file=docker-compose.yml up -d postgres redis
+	make down
+	docker compose --file=docker-compose.test.yml up -d --build
+	docker compose run test-purch pytest tests/ --cov=purch -v

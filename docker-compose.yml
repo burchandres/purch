@@ -32,7 +32,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: /app/.venv/bin/fastapi dev purch/main.py --host 0.0.0.0 --port 8080
+    command: fastapi dev purch/main.py --host 0.0.0.0 --port 8080
     ports:
       - "8080:8080"
     depends_on:
@@ -46,10 +46,12 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: /app/.venv/bin/taskiq worker purch.core:broker
+    command: taskiq worker purch.core:broker
     depends_on:
       redis:
         condition: service_healthy 
+      purch:
+        condition: service_started
     restart: unless-stopped
     networks:
       - purch
@@ -60,10 +62,12 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: /app/.venv/bin/taskiq scheduler purch.core:scheduler
+    command: taskiq scheduler purch.core:scheduler
     depends_on:
       redis:
         condition: service_healthy
+      purch:
+        condition: service_started
     restart: unless-stopped
     networks:
       - purch

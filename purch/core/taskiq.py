@@ -3,7 +3,7 @@ from taskiq import TaskiqScheduler, SimpleRetryMiddleware
 from taskiq_redis import (
     RedisStreamBroker,
     RedisAsyncResultBackend,
-    RedisScheduleSource,
+    ListRedisScheduleSource,
 )
 
 from purch.utils.config import get_settings
@@ -21,7 +21,7 @@ def setup_taskiq_broker_and_scheduler():
         .with_middlewares(SimpleRetryMiddleware(default_retry_count=3))
     )
 
-    redis_source = RedisScheduleSource(url=settings.get_redis_url())
+    redis_source = ListRedisScheduleSource(url=settings.get_redis_url())
 
     scheduler = TaskiqScheduler(broker=broker, sources=[redis_source])
 

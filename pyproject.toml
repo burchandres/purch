@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Personal finance management tool"
 authors = [{name="Andres Burch", email="acburch22@gmail.com"}]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "argon2-cffi>=23.1.0",
     "fastapi[standard]>=0.115.12",
@@ -15,7 +15,6 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "python-jose>=3.4.0",
     "pyyaml>=6.0.2",
-    "ruff>=0.11.7",
     "sqlmodel>=0.0.24",
     "taskiq-fastapi>=0.3.5",
     "taskiq-redis>=1.0.9",
@@ -24,10 +23,13 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "anyio>=4.9.0",
     "httpx>=0.28.1",
     "pytest>=8.3.5",
+    "pytest-cov>=6.2.1",
     "pytest-mock>=3.14.0",
     "requests>=2.32.3",
+    "ruff>=0.11.13",
     "sqlalchemy>=2.0.40",
 ]
 
