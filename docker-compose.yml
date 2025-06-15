@@ -33,42 +33,42 @@ services:
       context: .
       dockerfile: docker/dockerfile.purch
     command: /app/.venv/bin/fastapi dev purch/main.py --host 0.0.0.0 --port 8080
-    volumes:
-      - ./.env:/app/.env
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     networks:
       - purch
+    secrets:
+      - env_file
 
   taskiq-worker:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
     command: /app/.venv/bin/taskiq worker purch.core:broker
-    volumes:
-      - ./.env:/app/.env
     depends_on:
       redis:
         condition: service_healthy 
     restart: unless-stopped
     networks:
       - purch
+    secrets:
+      - env_file
 
   taskiq-scheduler:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
     command: /app/.venv/bin/taskiq scheduler purch.core:scheduler
-    volumes:
-      - ./.env:/app/.env
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - purch
+    secrets:
+      - env_file
 
   
 networks:
@@ -77,3 +77,7 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+
+secrets:
+  env_file:
+    file: .env
