@@ -12,6 +12,8 @@ def test_settings_override(configure_test_settings, test_db_name, test_client):
     
     # Verify the POSTGRES_DATABASE was properly set
     assert test_settings.POSTGRES_DATABASE == test_db_name
+    assert test_settings.POSTGRES_HOST == "test-postgres"
+    assert test_settings.REDIS_HOST == "test-redis"
     
     # Verify that get_settings() returns the same instance
     from purch.utils.config import get_settings
@@ -22,4 +24,3 @@ def test_settings_override(configure_test_settings, test_db_name, test_client):
     from purch.core.startup import get_settings as startup_get_settings
     startup_settings = startup_get_settings()
     assert startup_settings.POSTGRES_DATABASE == test_db_name
-

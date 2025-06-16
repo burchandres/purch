@@ -11,7 +11,11 @@ from purch.core.finance import PlaidEnvs
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="/run/secrets/env_file", env_file_encoding="utf-8", case_sensitive=True
+        env_file=["/run/secrets/env_file", ".env"],
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        # Don't require env file to exist (useful for testing with just environment variables)
+        env_file_exists_ok=False,
     )
 
     PRODUCT_NAME: str = Field(default="Purch", description="Name of the finance app")

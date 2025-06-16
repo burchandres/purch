@@ -1,5 +1,5 @@
-from functools import lru_cache
-from taskiq import TaskiqScheduler, SimpleRetryMiddleware
+import os
+from taskiq import TaskiqScheduler, SimpleRetryMiddleware, InMemoryBroker
 from taskiq_redis import (
     RedisStreamBroker,
     RedisAsyncResultBackend,
@@ -9,10 +9,17 @@ from taskiq_redis import (
 from purch.utils.config import get_settings
 
 
-@lru_cache
 def setup_taskiq_broker_and_scheduler():
+    # Check for test environment first, before loading settings
+    if os.getenv("POSTGRES_DATABASE", "").startswith("test_db_"):
+        # Use InMemoryBroker for testing
+        broker = InMemoryBroker()
+        scheduler = TaskiqScheduler(broker=broker, sources=[])
+        return broker, scheduler
+
     settings = get_settings()
 
+    # Production/Development Redis setup
     broker = (
         RedisStreamBroker(url=settings.get_redis_url())
         .with_result_backend(

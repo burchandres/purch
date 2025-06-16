@@ -25,7 +25,7 @@ def get_user_repository(
 
 # TODO: see what else we have to do to make this a completely async call
 @router.post("/token", response_model=Token)
-def login_for_access_token(
+async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     settings: Annotated[Settings, Depends(get_settings)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
@@ -52,7 +52,7 @@ def login_for_access_token(
 
 # TODO: see what else we have to do to make this a completely async call
 @router.post("/register", response_model=User)
-def register_user(
+async def register_user(
     user: User,
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> User:

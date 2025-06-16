@@ -26,6 +26,12 @@ lint-check: ## Check the formatting and perform easy fixes
 	@echo "Running make $@..."
 	uv run ruff check ./purch
 
+run-tests:
+	@echo "Running make $@..."
+	make up-tests
+	docker compose --file=docker-compose.test.yml run test-purch pytest --cov=purch tests/ -v
+	make down
+
 setup: ## Set up venv and install dependencies
 	@echo "Running make $@..."
 	uv venv
@@ -40,4 +46,3 @@ up-tests: ## Spin up containers for testing from test docker-compose file
 	@echo "Running make $@..."
 	make down
 	docker compose --file=docker-compose.test.yml up -d --build
-	docker compose run test-purch pytest tests/ --cov=purch -v

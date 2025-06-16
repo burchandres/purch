@@ -18,14 +18,14 @@ def get_user_repository(
 
 
 @router.get("/current", response_model=User)
-def get_current_user(
+async def get_current_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
 
 
 @router.delete("/delete", dependencies=[Depends(oauth2_scheme)])
-def delete_user(
+async def delete_user(
     id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_active_user)],
     user_repo: Annotated[UserRepository, Depends(get_user_repository)],

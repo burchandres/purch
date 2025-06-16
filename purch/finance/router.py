@@ -16,7 +16,7 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/plaid/link-token", response_model=LinkTokenResponse)
-def get_link_token(
+async def get_link_token(
     user: Annotated[User, Depends(get_current_active_user)],
     settings: Annotated[Settings, Depends(get_settings)],
 ):

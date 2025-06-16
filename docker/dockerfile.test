@@ -23,14 +23,16 @@ COPY purch ./purch
 
 # Copy test files and configuration
 COPY tests ./tests
-# COPY pytest.ini ./
-# COPY .coveragerc ./
 
 # Install all dependencies including dev/test dependencies
 RUN uv venv
 RUN uv sync --frozen --no-cache --dev
 
 ENV PATH="/app/.venv/bin:$PATH"
+
+# test that venv was setup correctly
+RUN /app/.venv/bin/python --version
+RUN python --version
 
 # Set environment variables for testing
 ENV PYTHONPATH=/app

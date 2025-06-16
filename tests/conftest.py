@@ -2,10 +2,10 @@ import pytest
 import uuid
 import datetime as dt
 
+from httpx import AsyncClient, ASGITransport
+from asgi_lifespan import LifespanManager
 from sqlmodel import create_engine, Session, text
 from sqlalchemy.exc import OperationalError
-from fastapi.testclient import TestClient
-from taskiq import InMemoryBroker
 
 from purch.main import app
 from purch.utils.config import Settings, get_settings
@@ -15,33 +15,19 @@ from purch.core.models import User
 
 logger = get_logger(__name__)
 
+pytestmark = pytest.mark.anyio
+
 
 def dict_to_user_class(user_dict: dict) -> User:
     user = User()
     user.__dict__ = user_dict
     return user
 
-@pytest.fixture
+
+@pytest.fixture(scope="session")
 def anyio_backend():
-    return 'asyncio'
+    return "asyncio"
 
-@pytest.fixture(autouse=True)
-def configure_test_taskiq_broker(monkeypatch):
-    broker = InMemoryBroker()
-    # patch the broker 
-    modules_to_patch = [
-        "purch.core.broker",
-        "purch.finance.tasks.broker",
-        "purch.main.broker",
-    ]
-    for module in modules_to_patch:
-        monkeypatch.setattr(module, broker)
-    # patch the configure_taskiq_broker_and_scheduler function
-    from purch.core.taskiq import setup_taskiq_broker_and_scheduler
-    setup_taskiq_broker_and_scheduler.cache_clear()
-    monkeypatch.setattr("purch.core.setup_taskiq_broker_and_scheduler", lambda: broker)
-
-    return broker
 
 @pytest.fixture
 def test_user():
@@ -55,11 +41,31 @@ def test_user():
     test_user["id"] = test_user["id"].hex
     return test_user
 
+
 @pytest.fixture
 def test_db_name():
     """Configure test db name upon import and return the name"""
     test_db_name = f"test_db_{uuid.uuid4().hex[:10]}"
     return test_db_name
+
+
+@pytest.fixture
+def configure_get_current_active_user(test_user):
+    from purch.auth.security import get_current_active_user
+    
+    # Clear any existing overrides
+    app.dependency_overrides = {}
+    user = dict_to_user_class(test_user)
+    app.dependency_overrides[get_current_active_user] = lambda: user
+
+
+@pytest.fixture(scope="function")
+async def test_client():
+    app.dependency_overrides = {}
+    async with LifespanManager(app):  # run lifespan (startup/shutdown)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            yield client
 
 
 @pytest.fixture
@@ -81,6 +87,8 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Set the environment variable
     test_db_name = test_db_name
     monkeypatch.setenv("POSTGRES_DATABASE", test_db_name)
+    monkeypatch.setenv("POSTGRES_HOST", "test-postgres")
+    monkeypatch.setenv("REDIS_HOST", "test-redis")
     
     # Create new settings instance (will pick up the environment variables)
     test_settings = Settings()
@@ -100,13 +108,16 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Use lambda to ensure the same instance is returned each time
     for module in modules_to_patch:
         monkeypatch.setattr(module, lambda: test_settings)
+    
+    # The taskiq module will automatically use InMemoryBroker for tests
+    # based on the test database name pattern
 
     yield test_settings  # Yield the settings in case tests need to access it
 
     # Check if test passed and clean up accordingly
     if hasattr(request.node, 'rep_call') and request.node.rep_call.passed:
         try:
-            teardown_test_db(test_db_name=test_settings.POSTGRES_DATABASE)
+            teardown_test_db(test_db_name=test_settings.POSTGRES_DATABASE, test_settings=test_settings)
         except OperationalError as e:
             logger.warning(f"Could not clean up test database {test_settings.POSTGRES_DATABASE}: {str(e)}")
     else:
@@ -123,42 +134,16 @@ def pytest_runtest_makereport(item, call):
     setattr(item, f"rep_{rep.when}", rep)
 
 
-def teardown_test_db(test_db_name: str):
+def teardown_test_db(test_db_name: str, test_settings: Settings):
     """Attempt to clean up the test database. Logs warning if unsuccessful."""
-    # TODO: potentially change this to pull from settings and not be hardcoded
-    db_uri = f"postgresql://postgres:password@localhost:5432"
+    # Use test settings to get the correct database connection
+    db_uri = f"postgresql://{test_settings.POSTGRES_USERNAME}:{test_settings.POSTGRES_PASSWORD.get_secret_value()}@{test_settings.POSTGRES_HOST}:{test_settings.POSTGRES_PORT}"
     admin_engine = create_engine(db_uri, isolation_level="AUTOCOMMIT")
     try:
         with Session(admin_engine) as session:
-            session.exec(text(f"DROP DATABASE {test_db_name}"))
+            session.exec(text(f"DROP DATABASE IF EXISTS {test_db_name}"))
             session.commit()
         logger.debug(f"Successfully cleaned up test database {test_db_name}")
     except Exception as e:
         logger.warning(f"Failed to clean up test database {test_db_name}: {str(e)}")
         raise
-
-
-@pytest.fixture
-def configure_get_current_active_user(test_user):
-    from purch.auth.security import get_current_active_user
-    
-    # Clear any existing overrides
-    app.dependency_overrides = {}
-    user = dict_to_user_class(test_user)
-    app.dependency_overrides[get_current_active_user] = lambda: user
-
-
-@pytest.fixture
-def test_client(configure_test_settings, configure_test_taskiq_broker):
-    """
-    Create a test client with proper database initialization.
-    
-    This fixture ensures that:
-    1. Test settings are in place before any database operations
-    2. The test database is created before the application starts
-    3. The application uses the test database throughout the test
-    """
-    # Create and yield the test client
-    app.dependency_overrides = {}
-    with TestClient(app) as client:
-        yield client
