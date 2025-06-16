@@ -1,5 +1,3 @@
-import taskiq_fastapi
-
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -66,9 +64,6 @@ app.include_router(
     prefix="/finance",
     tags=["finance"],
 )
-
-taskiq_fastapi.init(broker, app)
-
 
 @app.get("/")
 def main():

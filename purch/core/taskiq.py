@@ -10,14 +10,13 @@ from purch.utils.config import get_settings
 
 
 def setup_taskiq_broker_and_scheduler():
+    settings = get_settings()
     # Check for test environment first, before loading settings
-    if os.getenv("POSTGRES_DATABASE", "").startswith("test_db_"):
+    if settings.POSTGRES_DATABASE.startswith("test_db_"):
         # Use InMemoryBroker for testing
         broker = InMemoryBroker()
         scheduler = TaskiqScheduler(broker=broker, sources=[])
         return broker, scheduler
-
-    settings = get_settings()
 
     # Production/Development Redis setup
     broker = (
