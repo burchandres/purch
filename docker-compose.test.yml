@@ -88,5 +88,3 @@ networks:
 
 volumes:
   test_coverage:
-
-# Removed secrets section - using environment variables instead for tests

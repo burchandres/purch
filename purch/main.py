@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     # Shutdown code here
 
     # shutdown taskiq broker
-    if broker.is_worker_process:
+    if not broker.is_worker_process:
         await broker.shutdown()
 
 
