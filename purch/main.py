@@ -65,6 +65,7 @@ app.include_router(
     tags=["finance"],
 )
 
+
 @app.get("/")
 def main():
     return {
