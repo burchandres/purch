@@ -1,5 +1,6 @@
 import uuid
 import datetime as dt
+import pytest
 
 from fastapi import status
 
@@ -15,6 +16,8 @@ USER_URL = "/user"
 CURRENT_USER_URL = USER_URL + "/current"
 DELETE_USER_URL = USER_URL + "/delete"
 
+pytestmark = pytest.mark.anyio
+
 
 def jsonify_user(user: User):
     json_user = user.model_dump()
@@ -24,14 +27,11 @@ def jsonify_user(user: User):
     return json_user
 
 
-def test_user_registration(configure_test_settings, test_db_name, test_client, test_user):
+async def test_user_registration(configure_test_settings, test_client, test_user):
     test_settings = configure_test_settings
-    # make sure the settings are correct
-    assert test_settings.DB_HOST == "localhost"
-    assert test_settings.DB_NAME == test_db_name
-    # actualy tests
+    # actual tests
     test_user = test_user
-    response = test_client.post(
+    response = await test_client.post(
         REGISTER_URL,
         json=test_user
     )
@@ -43,13 +43,14 @@ def test_user_registration(configure_test_settings, test_db_name, test_client, t
     assert registered_user.username == test_user["username"]
     assert verify_password(test_user["password"], registered_user.password)
 
-def test_valid_user_login(configure_test_settings, test_db_name, test_client, test_user):
+
+async def test_valid_user_login(configure_test_settings, test_client, test_user):
     """Test successful login with valid credentials using the OAuth2PasswordRequestForm format."""
     # Create a test user
     test_user = test_user
     
     # First register the user
-    register_user_response = test_client.post(
+    register_user_response = await test_client.post(
         REGISTER_URL, 
         json=test_user
     )
@@ -57,7 +58,7 @@ def test_valid_user_login(configure_test_settings, test_db_name, test_client, te
     assert register_user_response.status_code == status.HTTP_200_OK
     
     # Now hit the login endpoint with form data (mimicking OAuth2PasswordRequestForm)
-    login_response = test_client.post(
+    login_response = await test_client.post(
         LOGIN_URL,
         data={
             "username": test_user["username"],
@@ -76,19 +77,20 @@ def test_valid_user_login(configure_test_settings, test_db_name, test_client, te
     assert response_data["token_type"] == "bearer"
     assert response_data["access_token"] is not None
 
-def test_invalid_password_login(configure_test_settings, test_db_name, test_client, test_user):
+
+async def test_invalid_password_login(configure_test_settings, test_client, test_user):
     """Test login failure with invalid password."""
     # Create and register a test user
     test_user = test_user
     
-    register_user_response = test_client.post(
+    register_user_response = await test_client.post(
         REGISTER_URL, 
         json=test_user
     )
     assert register_user_response.status_code == status.HTTP_200_OK
     
     # Try to login with incorrect password
-    login_response = test_client.post(
+    login_response = await test_client.post(
         LOGIN_URL,
         data={
             "username": test_user["username"],
@@ -100,10 +102,11 @@ def test_invalid_password_login(configure_test_settings, test_db_name, test_clie
     # Check we get a 401 Unauthorized response
     assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
-def test_invalid_username_login(configure_test_settings, test_db_name, test_client):
+
+async def test_invalid_username_login(configure_test_settings, test_client):
     """Test login failure with non-existent username."""
     # Try to login with a username that doesn't exist
-    login_response = test_client.post(
+    login_response = await test_client.post(
         LOGIN_URL,
         data={
             "username": "nonexistent_user",
@@ -115,19 +118,20 @@ def test_invalid_username_login(configure_test_settings, test_db_name, test_clie
     # Check we get a 401 Unauthorized response
     assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
-def test_token_structure(configure_test_settings, test_db_name, test_client, test_user):
+
+async def test_token_structure(configure_test_settings, test_db_name, test_client, test_user):
     """Test the structure and content of the token response."""
     # Create and register a test user
     test_user = test_user
     
-    register_user_response = test_client.post(
+    register_user_response = await test_client.post(
         REGISTER_URL, 
         json=test_user
     )
     assert register_user_response.status_code == status.HTTP_200_OK
     
     # Login to get token
-    login_response = test_client.post(
+    login_response = await test_client.post(
         LOGIN_URL,
         data={
             "username": test_user["username"],
@@ -150,27 +154,28 @@ def test_token_structure(configure_test_settings, test_db_name, test_client, tes
 # Tests for protected endpoints are implemented below
 ############################################################
 
-def test_unauthenticated_access(configure_test_settings, test_db_name, test_client):
+
+async def test_unauthenticated_access(configure_test_settings, test_db_name, test_client):
     """Test accessing protected endpoints without authentication fails."""
     # Try to access current user endpoint without a token
-    current_user_response = test_client.get(CURRENT_USER_URL)
+    current_user_response = await test_client.get(CURRENT_USER_URL)
     assert current_user_response.status_code == status.HTTP_401_UNAUTHORIZED
     
     # Try to access delete user endpoint without a token
-    delete_user_response = test_client.delete(
+    delete_user_response = await test_client.delete(
         f"{DELETE_USER_URL}?id={uuid.uuid4()}"
     )
     assert delete_user_response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_authenticated_current_user(configure_test_settings, test_db_name, test_client):
+async def test_authenticated_current_user(configure_test_settings, test_db_name, test_client):
     """Test accessing current user endpoint with valid token returns correct user data."""
     # Register a user and get token
-    test_user = register_and_get_user(test_client)
-    token = get_auth_token(test_client, test_user)
+    test_user = await register_and_get_user(test_client)
+    token = await get_auth_token(test_client, test_user)
     
     # Access current user endpoint with token
-    current_user_response = test_client.get(
+    current_user_response = await test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -185,16 +190,16 @@ def test_authenticated_current_user(configure_test_settings, test_db_name, test_
     assert current_user_data["last_name"] == test_user.last_name
 
 
-def test_delete_own_account(configure_test_settings, test_db_name, test_client):
+async def test_delete_own_account(configure_test_settings, test_client):
     """Test deleting own account with valid token succeeds."""
     test_settings = configure_test_settings
     # Register a user and get token
-    test_user = register_and_get_user(test_client)
+    test_user = await register_and_get_user(test_client)
     test_user_id = UserRepository(settings=test_settings).get_via_username(username=test_user.username).id
-    token = get_auth_token(test_client, test_user)
+    token = await get_auth_token(test_client, test_user)
     
     # Delete the user account
-    delete_response = test_client.delete(
+    delete_response = await test_client.delete(
         f"{DELETE_USER_URL}?id={test_user_id}",
         headers={"Authorization": f"Bearer {token}"}
     )
@@ -203,26 +208,26 @@ def test_delete_own_account(configure_test_settings, test_db_name, test_client):
     assert delete_response.status_code == status.HTTP_200_OK
     
     # Verify user can no longer access protected endpoints
-    current_user_response = test_client.get(
+    current_user_response = await test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {token}"}
     )
     assert current_user_response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_delete_other_account(configure_test_settings, test_db_name, test_client):
+async def test_delete_other_account(configure_test_settings, test_db_name, test_client):
     """Test attempting to delete another user's account fails with 401."""
     test_settings = configure_test_settings
     # Register first user
-    test_user1 = register_and_get_user(test_client)
-    token1 = get_auth_token(test_client, test_user1)
+    test_user1 = await register_and_get_user(test_client)
+    token1 = await get_auth_token(test_client, test_user1)
     
     # Create a second user with different username to avoid conflicts
     test_user2 = User(username="another.user", first_name="Another", last_name="User")
     json_test_user2 = jsonify_user(test_user2)
     
     # Register the second user
-    register_response2 = test_client.post(
+    register_response2 = await test_client.post(
         REGISTER_URL, 
         json=json_test_user2
     )
@@ -230,7 +235,7 @@ def test_delete_other_account(configure_test_settings, test_db_name, test_client
     registered_user2_id = UserRepository(settings=test_settings).get_via_username(username=test_user2.username).id
     
     # Try to delete the second user using the first user's token
-    delete_response = test_client.delete(
+    delete_response = await test_client.delete(
         f"{DELETE_USER_URL}?id={registered_user2_id}",
         headers={"Authorization": f"Bearer {token1}"}
     )
@@ -239,8 +244,8 @@ def test_delete_other_account(configure_test_settings, test_db_name, test_client
     assert delete_response.status_code == status.HTTP_401_UNAUTHORIZED
     
     # Verify second user still exists and can authenticate
-    token2 = get_auth_token(test_client, test_user2)
-    current_user_response = test_client.get(
+    token2 = await get_auth_token(test_client, test_user2)
+    current_user_response = await test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {token2}"}
     )
@@ -248,11 +253,11 @@ def test_delete_other_account(configure_test_settings, test_db_name, test_client
     assert current_user_response.json()["id"] == str(registered_user2_id)
 
 
-def test_invalid_token(configure_test_settings, test_db_name, test_client):
+async def test_invalid_token(configure_test_settings, test_client):
     """Test that an invalid token is rejected."""
     # Try to use an invalid token
     invalid_token = "invalid.token"
-    current_user_response = test_client.get(
+    current_user_response = await test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {invalid_token}"}
     )
@@ -262,9 +267,9 @@ def test_invalid_token(configure_test_settings, test_db_name, test_client):
 # Helper functions for protected endpoint tests
 ############################################################
 
-def get_auth_token(test_client, test_user):
+async def get_auth_token(test_client, test_user):
     """Helper function to get an authentication token for a user."""
-    login_response = test_client.post(
+    login_response =  await test_client.post(
         LOGIN_URL,
         data={
             "username": test_user.username,
@@ -276,13 +281,13 @@ def get_auth_token(test_client, test_user):
     return login_response.json()["access_token"]
 
 
-def register_and_get_user(test_client):
+async def register_and_get_user(test_client):
     """Helper function to register a user and return the user data."""
     test_user = User()
     json_test_user = jsonify_user(test_user)
     
     # Register the user
-    register_response = test_client.post(
+    register_response = await test_client.post(
         REGISTER_URL, 
         json=json_test_user
     )

@@ -6,15 +6,9 @@ from purch.core.models import User, Item, Account, Transaction
 from purch.utils.config import Settings
 
 
-class AbstractRepository(ABC):
-    db_type_default = "postgresql"
-
+class AbstractPostgresRepository(ABC):
     def __init__(self, settings: Settings):
-        engine_url = (
-            f"{self.db_type_default}://"
-            f"{settings.DB_USERNAME}:{settings.DB_PASSWORD.get_secret_value()}"
-            f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-        )
+        engine_url = settings.get_postgres_url()
         self.engine = create_engine(engine_url, echo=True)
         SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
 

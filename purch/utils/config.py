@@ -2,7 +2,7 @@ import plaid
 
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import SecretStr
+from pydantic import SecretStr, Field
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
@@ -11,30 +11,68 @@ from purch.core.finance import PlaidEnvs
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", case_sensitive=True
+        env_file=["/run/secrets/env_file", ".env"],
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        # Don't require env file to exist (useful for testing with just environment variables)
+        env_file_exists_ok=False,
     )
 
-    PRODUCT_NAME: str = "Purch"
-    # db settings, defaults to local dev
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 5432
-    DB_USERNAME: str = "postgres"
-    DB_PASSWORD: SecretStr = "password"
-    DB_TYPE: str = "postgres"
-    DB_NAME: str = "purch"
+    PRODUCT_NAME: str = Field(default="Purch", description="Name of the finance app")
+    # postgres settings, defaults to local dev
+    POSTGRES_HOST: str = Field(
+        default="localhost", description="postgres database host"
+    )
+    POSTGRES_PORT: int = Field(default=5432, description="postgres database port")
+    POSTGRES_USERNAME: str = Field(
+        default="postgres", description="postgres database username"
+    )
+    POSTGRES_PASSWORD: SecretStr = Field(
+        default="password", description="postgres database password"
+    )
+    POSTGRES_DATABASE: str = Field(
+        default="purch",
+        description="name of the database folder all tables will be stored in",
+    )
+
+    # redis settings, defaults to local dev
+    REDIS_HOST: str = Field(default="localhost", description="redis database host")
+    REDIS_PORT: int = Field(default=6379, description="redis database port")
+    REDIS_USERNAME: str = Field(default="redis", description="redis database username")
+    REDIS_PASSWORD: SecretStr = Field(
+        default="password", description="redis database password"
+    )
+    REDIS_DATABASE: int = Field(
+        default=0,
+        description="which of the 16 redis databases (numbered 0-15) to connect to",
+    )
+
     # auth service settings
-    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
+        default=30, description="time, in minutes, the jwt lasts per user"
+    )
+
     # Secret key for JWT signing
-    SECRET_KEY: SecretStr
-    ALGORITHM: str = "HS256"
-    # PLAID ENV (temp, to be moved elsewhere probably)
+    SECRET_KEY: SecretStr = Field(description="secret key used for password encryption")
+    ALGORITHM: str = Field(
+        default="HS256",
+        description="hashing algorithm used with secret_key for password encryption",
+    )
+
+    # PLAID ENV
     PLAID_CLIENT_ID: str
     PLAID_SECRET: SecretStr
-    PLAID_ENV: PlaidEnvs
+    PLAID_ENV: PlaidEnvs = Field(
+        default=PlaidEnvs.sandbox.value,
+        description="when sandbox is set no real data can be pulled, primarily for testing. Production env is for deployment and real use",
+    )
     PLAID_PRODUCTS: str
     PLAID_COUNTRY_CODES: str
-    PLAID_REDIRECT_URI: str | None
-    PLAID_LANGUAGE: str = "en"
+    PLAID_REDIRECT_URI: str | None = Field(
+        default="http://localhost:5379/dashboard",
+        description="Required for OAuth institutions upon successful user registration via plaid",
+    )
+    PLAID_LANGUAGE: str = Field(default="en")
 
     def get_plaid_host(self):
         """Returns the appropriate Plaid Enum Environment variable based on PLAID_ENV value."""
@@ -52,6 +90,17 @@ class Settings(BaseSettings):
                 lambda cc: CountryCode(cc.lstrip()), self.PLAID_COUNTRY_CODES.split(",")
             )
         )
+
+    def get_postgres_url(self):
+        return (
+            f"postgresql://"
+            f"{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD.get_secret_value()}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DATABASE}"
+        )
+
+    def get_redis_url(self):
+        # TODO: figure out redis authentication and then add it to url once configured
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DATABASE}"
 
 
 @lru_cache

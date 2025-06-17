@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /app
 
@@ -22,9 +22,13 @@ COPY purch ./purch
 RUN uv venv
 RUN uv sync --frozen --no-cache
 
-FROM python:3.12-slim AS runner
+FROM python:3.13-slim AS runner
 
 WORKDIR /app
+
+# Copy installed UV binary into runner stage
+COPY --from=builder /root/.local /root/.local
+ENV PATH="/root/.local/bin/:$PATH"
 
 COPY purch ./purch
 COPY --from=builder /app/.venv /app/.venv 
@@ -32,6 +36,9 @@ COPY --from=builder /app/pyproject.toml /app/pyproject.toml
 COPY --from=builder /app/LICENSE /app/LICENSE
 COPY --from=builder /app/uv.lock /app/uv.lock
 
-CMD ["/app/.venv/bin/fastapi", "dev", "purch/main.py", "--host", "0.0.0.0", "--port", "8080"]
-
-
+# Verify the venv works properly
+RUN /app/.venv/bin/python --version
+# Prepend python to the PATH
+ENV PATH="/app/.venv/bin/:$PATH"
+# Ensure it all still works
+RUN python --version

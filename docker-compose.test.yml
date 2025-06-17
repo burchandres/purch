@@ -1,0 +1,90 @@
+services:
+  test-postgres:
+    container_name: test-postgres
+    image: postgres:latest
+    ports:
+      - "15432:5432"  # Different port to avoid conflicts
+    environment:
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    tmpfs:
+      - /var/lib/postgresql/data  # Use tmpfs for faster tests
+    networks:
+      - test_purch
+
+  test-redis:
+    container_name: test-redis
+    image: redis:alpine
+    ports:
+      - "16379:6379"  # Different port to avoid conflicts
+    tmpfs:
+      - /data  # Use tmpfs for faster tests
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 3
+      start_period: 5s
+    networks:
+      - test_purch
+
+  test-purch:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.test
+    command: pytest --cov=purch -v # --cov-report=html:/app/coverage/html --cov-report=xml:/app/coverage/coverage.xml --cov-report=term-missing --junit-xml=/app/test-results/junit.xml
+    volumes:
+      - test_coverage:/app/coverage  # Persist coverage reports
+    depends_on:
+      test-postgres:
+        condition: service_started
+      test-redis:
+        condition: service_healthy
+    env_file: 
+      - ./.env
+    environment:
+      - POSTGRES_HOST=test-postgres
+      - REDIS_HOST=test-redis
+    networks:
+      - test_purch
+
+  test-taskiq-worker:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.test
+    command: taskiq worker purch.core:broker --fs-discover
+    depends_on:
+      test-redis:
+        condition: service_healthy 
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_HOST=test-postgres
+      - REDIS_HOST=test-redis
+    networks:
+      - test_purch
+
+  test-taskiq-scheduler:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.test
+    command: taskiq scheduler purch.core:scheduler --fs-discover
+    depends_on:
+      test-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=test-postgres
+      - REDIS_HOST=test-redis
+    networks:
+      - test_purch
+
+
+networks:
+  test_purch:
+
+volumes:
+  test_coverage:

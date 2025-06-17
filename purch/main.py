@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from purch.core import broker
 from purch.user.router import router as user_router
 from purch.auth.router import router as auth_router
 from purch.finance.router import router as finance_router
@@ -11,15 +12,25 @@ from purch.core.startup import init_db
 from purch.utils.logger import get_logger
 
 
-LOGGER = get_logger(__name__)
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup code here
+
+    # Start up the database
     init_db()
+    # Start up our taskiq broker
+    if not broker.is_worker_process:
+        await broker.startup()
+
     yield
     # Shutdown code here
+
+    # shutdown taskiq broker
+    if not broker.is_worker_process:
+        await broker.shutdown()
 
 
 app = FastAPI(

@@ -6,10 +6,10 @@ from sqlmodel import (
 )
 
 from purch.core.models import User
-from purch.core.repository import AbstractRepository
+from purch.core.repository import AbstractPostgresRepository
 
 
-class UserRepository(AbstractRepository):
+class UserRepository(AbstractPostgresRepository):
     def add(self, user: User):
         with Session(self.engine) as session:
             session.add(user)

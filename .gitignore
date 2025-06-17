@@ -4,6 +4,7 @@ __pycache__
 .env
 .vscode
 .pytest_cache
+coverage
 
 # sereno's IDE config
 pyrightconfig.json

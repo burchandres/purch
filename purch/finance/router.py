@@ -1,12 +1,14 @@
 import plaid
 import json
 
+from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
 from purch.core.models import User
 from purch.finance.tokens import get_plaid_link_token, get_plaid_access_token
 from purch.finance.response_models import LinkTokenResponse
+from purch.finance.tasks import create_and_store_item_and_accounts, sync_transactions
 from purch.auth.security import get_current_active_user
 from purch.utils.config import Settings, get_settings
 
@@ -14,7 +16,7 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/plaid/link-token", response_model=LinkTokenResponse)
-def get_link_token(
+async def get_link_token(
     user: Annotated[User, Depends(get_current_active_user)],
     settings: Annotated[Settings, Depends(get_settings)],
 ):
@@ -27,13 +29,29 @@ def get_link_token(
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e.body)
 
 
-# TODO: When this endpoint is hit get access token and sync transactions in a background task
+# TODO: When this endpoint is hit...
+#       ...sync transactions in a background task
 @router.post("/plaid/access-token")
-def get_access_token(public_token: str):
+async def exchange_for_access_token(
+    public_token: str, user: Annotated[User, Depends(get_current_active_user)]
+):
     try:
         plaid_access_token = get_plaid_access_token(public_token=public_token)
-        return Response(
-            status_code=status.HTTP_200_OK, content=json.dumps(plaid_access_token)
+        # kick off task to store the item and relevant accounts
+        # associated with the above access token and user
+        await create_and_store_item_and_accounts.kiq(
+            access_token=plaid_access_token["access_token"],
+            item_id=plaid_access_token["item_id"],
+            user=user,
         )
-    except plaid.ApiException as e:
+        # TODO: figure out the sync transactions task
+        # await sync_transactions.kiq(
+        #     plaid_access_token=plaid_access_token,
+        #     initial_cursor=''
+        # )
+        return Response(
+            status_code=status.HTTP_200_OK, content="Syncing information for you"
+        )
+
+    except (TaskiqResultTimeoutError, plaid.ApiException) as e:
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e)

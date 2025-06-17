@@ -1,0 +1,42 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install system dependencies needed for testing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    curl \
+    postgresql-client \
+    redis-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin/:$PATH"
+
+# Copy dependency files
+COPY pyproject.toml uv.lock LICENSE README.md ./
+
+# Copy source code
+COPY purch ./purch
+
+# Copy test files and configuration
+COPY tests ./tests
+
+# Install all dependencies including dev/test dependencies
+RUN uv venv
+RUN uv sync --frozen --no-cache --dev
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+# test that venv was setup correctly
+RUN /app/.venv/bin/python --version
+RUN python --version
+
+# Set environment variables for testing
+ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Create directory for test outputs
+RUN mkdir -p /app/test-results /app/coverage
