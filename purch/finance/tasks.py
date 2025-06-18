@@ -1,9 +1,12 @@
+import datetime as dt
+
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
 from purch.core import broker
 from purch.core.models import User, Item, Account, Transaction
 from purch.finance.plaid import plaid_client
 from purch.finance.repository import FinanceRepository
+from purch.user.repository import UserRepository
 from purch.utils.config import get_settings
 from purch.utils.logger import get_logger
 
@@ -166,3 +169,10 @@ async def sync_transactions(
         has_more = response["has_more"]
 
     return {"added": added, "modified": modified, "removed": removed}, cursor
+
+
+@broker.task(schedule={"cron": "0 0 * * *"})
+async def sync_all_transactions():
+    logger.debug("Running sync_all_transactions...")
+    pass
+    logger.debug("done running sync_all_transactions.")

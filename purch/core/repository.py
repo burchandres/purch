@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, create_engine, Session
-from typing import Any
+from typing import Any, Iterable, Optional
 
 from purch.core.models import User, Item, Account, Transaction
 from purch.utils.config import Settings
@@ -14,6 +14,14 @@ class AbstractPostgresRepository(ABC):
 
     @abstractmethod
     def add(self, object: Any):
+        pass
+
+    @abstractmethod
+    def add_all(self, objects: Iterable[Any]):
+        pass
+
+    @abstractmethod
+    def get_all(self, object_type: Optional[str]):
         pass
 
     @abstractmethod

@@ -4,6 +4,7 @@ from sqlmodel import (
     Session,
     select,
 )
+from typing import Iterable
 
 from purch.core.models import User
 from purch.core.repository import AbstractPostgresRepository
@@ -14,6 +15,17 @@ class UserRepository(AbstractPostgresRepository):
         with Session(self.engine) as session:
             session.add(user)
             session.commit()
+
+    def add_all(self, users: Iterable[User]):
+        with Session(self.engine) as session:
+            session.add_all(users)
+            session.commit()
+
+    def get_all(self) -> Iterable[User]:
+        with Session(self.engine) as session:
+            statement = select(User)
+            results = session.exec(statement)
+            return results
 
     def get_via_id(self, id: uuid.UUID) -> User:
         with Session(self.engine) as session:
