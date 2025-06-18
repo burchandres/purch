@@ -1,4 +1,4 @@
-import datetime as dt
+from typing import Annotated
 
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
@@ -173,6 +173,15 @@ async def sync_transactions(
 
 @broker.task(schedule={"cron": "0 0 * * *"})
 async def sync_all_transactions():
-    logger.debug("Running sync_all_transactions...")
-    pass
+    logger.debug("Syncing all transactions for all users within Purch...")
+    settings = get_settings()
+    user_repo = UserRepository(settings=settings)
+    all_users = user_repo.get_all()
+    # TODO: optimize this
+    for user in all_users:
+        for item in user.items:
+            await sync_transactions(
+                plaid_access_token=item.access_token,
+                initial_cursor=item.transaction_cursor
+            )
     logger.debug("done running sync_all_transactions.")
