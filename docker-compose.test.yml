@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.test
-    command: taskiq worker purch.core:broker --fs-discover --reload
+    command: taskiq worker purch.core:broker --fs-discover
     depends_on:
       test-redis:
         condition: service_healthy 
@@ -69,7 +69,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.test
-    command: taskiq scheduler purch.core:scheduler --fs-discover --reload
+    command: taskiq scheduler purch.core:scheduler --fs-discover
     depends_on:
       test-redis:
         condition: service_healthy
