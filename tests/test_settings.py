@@ -21,6 +21,6 @@ def test_settings_override(configure_test_settings, test_db_name, test_client):
     assert current_settings.POSTGRES_DATABASE == test_db_name
     
     # Verify the settings are used in the startup module
-    from purch.core.startup import get_settings as startup_get_settings
+    from purch.api.startup import get_settings as startup_get_settings
     startup_settings = startup_get_settings()
     assert startup_settings.POSTGRES_DATABASE == test_db_name

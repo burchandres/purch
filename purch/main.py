@@ -8,7 +8,7 @@ from purch.user.router import router as user_router
 from purch.auth.router import router as auth_router
 from purch.finance.router import router as finance_router
 from purch.utils.project_version import version
-from purch.core.startup import init_db
+from purch.api.startup import init_db
 from purch.common.logger import get_logger
 
 
