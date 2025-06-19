@@ -6,9 +6,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
 from purch.domains.user.models import User
-from purch.finance.tokens import get_plaid_link_token, get_plaid_access_token
+from purch.infrastructure.plaid.tokens import get_plaid_link_token, get_plaid_access_token
 from purch.finance.response_models import LinkTokenResponse
-from purch.finance.tasks import create_and_store_item_and_accounts, sync_transactions
+# TODO: fix this import upon figuring where to put these tasks
+from purch.domains.random import create_and_store_item_and_accounts, sync_transactions
 from purch.auth.security import get_current_active_user
 from purch.common.config import Settings, get_settings
 
