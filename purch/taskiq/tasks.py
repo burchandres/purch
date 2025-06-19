@@ -1,12 +1,10 @@
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
 from purch.taskiq import broker
-from purch.domains.user.models import User
-from purch.domains.item.models import Item
-from purch.domains.account.models import Account
-from purch.domains.transaction.models import Transaction
 from purch.plaid.client import plaid_client
+from purch.domains.models import User, Item, Account, Transaction
 from purch.domains.user.repository import UserRepository
+from purch.domains.finance.repository import FinanceRepository
 from purch.common.config import get_settings
 from purch.common.logger import get_logger
 
