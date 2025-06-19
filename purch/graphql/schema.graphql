@@ -1,0 +1,58 @@
+
+enum SalaryRates {
+    hourly
+    weekly
+    biweekly
+    bimonthly
+    monthly
+    annual
+}
+
+type Account {
+    id: String!
+    name: String!
+    itemId: String!
+    item: Item!
+    transactions: [Transaction!]!
+    userId: String!
+    user: User!
+}
+
+type Item {
+    accessToken: String!
+    accounts: [Account!]!
+    bankName: String!
+    id: String!
+    transactionCursor: String!
+    userId: String!
+    user: User!
+}
+
+type Transaction {
+    id: String!
+    account_id: String!
+    account: Account!
+    category: String!
+    authorized_date: String!
+    settled_date: String!
+    name: String!
+    amount: Float!
+    currency_code: String!
+    userId: String!
+    user: User!
+}
+
+type User {
+    id: String!
+    lastUpdated: Float!
+    firstName: String!
+    lastName: String!
+    username: String!
+    password: String!
+    isActive: Boolean!
+    salary: Float!
+    salaryRate: SalaryRates!
+    categoryBudgets: String  # TODO: Verify
+    item: Item
+    transactions: [User]!
+}
