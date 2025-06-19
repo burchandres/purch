@@ -17,14 +17,17 @@ class FinanceRepository(AbstractPostgresRepository):
     objects: dict[str, Item | Account | Transaction] = {
         FinanceObjectTypes.item.value: Item,
         FinanceObjectTypes.account.value: Account,
-        FinanceObjectTypes.transaction.value: Transaction
+        FinanceObjectTypes.transaction.value: Transaction,
     }
+
     def add(self, object: Item | Account | Transaction):
         with Session(self.engine) as session:
             session.add(object)
             session.commit()
 
-    def add_all(self, accounts: Iterable[Item] | Iterable[Account] | Iterable[Transaction]):
+    def add_all(
+        self, accounts: Iterable[Item] | Iterable[Account] | Iterable[Transaction]
+    ):
         with Session(self.engine) as session:
             session.add_all(accounts)
             session.commit()
@@ -36,7 +39,9 @@ class FinanceRepository(AbstractPostgresRepository):
             results = session.exec(statement)
             return results.first()
 
-    def get_all(self, object_type: str) -> Iterable[Item] | Iterable[Account] | Iterable[Transaction]:
+    def get_all(
+        self, object_type: str
+    ) -> Iterable[Item] | Iterable[Account] | Iterable[Transaction]:
         with Session(self.engine) as session:
             object = self._get_object(object_type)
             statement = select(object)

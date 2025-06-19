@@ -1,10 +1,15 @@
+from typing import Annotated
+
+from taskiq import TaskiqDepends, Context
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
 from purch.taskiq import broker
+from purch.taskiq.dependencies import get_finance_service
 from purch.plaid.client import plaid_client
 from purch.domains.models import User, Item, Account, Transaction
 from purch.domains.user.repository import UserRepository
-from purch.domains.finance.repository import FinanceRepository
+from purch.domains.finance.service import FinanceService
+from purch.domains.finance.schemas import ItemCreate, AccountsCreate
 from purch.common.config import get_settings
 from purch.common.logger import get_logger
 
@@ -12,82 +17,23 @@ logger = get_logger(__name__)
 
 
 @broker.task(retry_on_error=True)
-async def create_and_store_item_and_accounts(
-    access_token: str, item_id: str, user: User
+async def create_and_add_item_and_accounts(
+    access_token: str,
+    item_id: str,
+    user: User,
+    finance_service: Annotated[FinanceService, TaskiqDepends(get_finance_service)],
+    context: Annotated[Context, TaskiqDepends()],
 ):
-    logger.debug(f"creating and storing item and accounts for user {user.id}")
+    logger.debug(
+        f"Task {context.message.task_id}: adding item and accounts for user {user.id}"
+    )
     # create and store item
-    store_item_task = await store_item.kiq(
-        access_token=access_token, item_id=item_id, user=user
+    item = finance_service.add_item(
+        ItemCreate(access_token=access_token, item_id=item_id, user=user)
     )
-    # wait for above task to finish
-    store_item_result = await store_item_task.wait_result()
-    if store_item_result.is_err:
-        raise RuntimeError(
-            f"error creating and storing item {item_id} for user {user.id}"
-        )
-    # fire off task to create and store accounts associated with above item
-    await store_accounts.kiq(
-        access_token=access_token, item=store_item_result.return_value
-    )
-
-
-@broker.task()
-async def store_item(access_token: str, item_id: str, user: User) -> Item:
-    """
-    This task retrieves all necessary metadata to create an Item for the given access token for the user.
-
-    Args:
-        access_token (str): The access token to store that was given by exchanging for the public token.
-        item_id (str): The id of the item we're creating.
-        user (User): The user that all of this is associated under.
-
-    Returns:
-        Item: The item that was pushed to postgres.
-    """
-    settings = get_settings()
-    # get item metadata first; TODO: store info in redis for faster lookup later if possible
-    item_request = ItemGetRequest(access_token=access_token)
-    item_response = plaid_client.item_get(item_request).to_dict()["item"]
-    # create Item
-    item = Item(
-        id=item_id,
-        access_token=access_token,
-        bank_name=item_response["institution_name"],
-        user=user,
-    )
-    logger.debug(f"Pushed item {item.id} tied to user {user.id}.")
-    # push to postgres
-    finance_repo = FinanceRepository(settings=settings)
-    finance_repo.add(item)
-    return item
-
-
-@broker.task()
-async def store_accounts(access_token: str, item: Item):
-    """
-    Stores accounts associated to the item tied to the given item_id in the database.
-
-    Args:
-        access_token (str): The Plaid access token tied to an item.
-        item (Item): The item that all accounts are associated to.
-
-    Returns:
-        None.
-    """
-    settings = get_settings()
-    # get accounts' metadata
-    accounts_request = AccountsGetRequest(access_token=access_token)
-    accounts: list = plaid_client.accounts_get(accounts_request).to_dict()["accounts"]
-    # loop through above accounts
-    finance_repo = FinanceRepository(settings=settings)
-    for plaid_account in accounts:
-        # create Account model
-        account = Account(
-            id=plaid_account["account_id"], name=plaid_account["name"], item=item
-        )
-        finance_repo.add(account)
-        logger.debug(f"Pushed account {account.id} tied to item {account.item.id}.")
+    # create and store associated accounts
+    finance_service.add_accounts(AccountsCreate(access_token=access_token, item=item))
+    logger.debug(f"done with task: {context.message.task_id}")
 
 
 # Some notes to consider when dealing with transactions...
@@ -178,7 +124,7 @@ async def sync_all_transactions():
     # TODO: optimize this
     for user in all_users:
         for item in user.items:
-            await sync_transactions(
+            await sync_transactions.kiq(
                 plaid_access_token=item.access_token,
                 initial_cursor=item.transaction_cursor,
             )
