@@ -11,7 +11,7 @@ from uuid import UUID
 from datetime import date, timedelta
 
 from purch.infrastructure.plaid.client import plaid_client
-from purch.finance.response_models import LinkTokenResponse
+from purch.infrastructure.plaid.schemas import LinkTokenResponse
 from purch.common.config import get_settings, Settings
 
 

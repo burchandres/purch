@@ -1,6 +1,6 @@
 import datetime as dt
-from pydantic import BaseModel
 
+from pydantic import BaseModel
 
 class LinkTokenResponse(BaseModel):
     link_token: str

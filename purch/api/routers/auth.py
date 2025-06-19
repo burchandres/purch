@@ -5,14 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.common.config import get_settings, Settings
-from purch.auth.response_models import Token
-from purch.auth.security import (
+from purch.domains.auth.schemas import Token
+from purch.domains.auth.service import (
     create_purch_jwt_access_token,
     verify_password,
     hash_password,
 )
-from purch.user.repository import UserRepository
-from purch.core.models import User
+from purch.domains.user.repository import UserRepository
+from purch.domains.user.models import User
 
 router = APIRouter()
 

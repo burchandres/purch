@@ -7,8 +7,8 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 from purch.common.config import get_settings, Settings
-from purch.core.models import User
-from purch.user.repository import UserRepository
+from purch.domains.user.models import User
+from purch.domains.user.repository import UserRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
