@@ -10,7 +10,7 @@ from plaid.model.item_public_token_exchange_request import (
 from uuid import UUID
 from datetime import date, timedelta
 
-from purch.finance.plaid import plaid_client
+from purch.infrastructure.plaid.client import plaid_client
 from purch.finance.response_models import LinkTokenResponse
 from purch.common.config import get_settings, Settings
 
