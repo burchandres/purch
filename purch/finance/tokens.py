@@ -12,7 +12,7 @@ from datetime import date, timedelta
 
 from purch.finance.plaid import plaid_client
 from purch.finance.response_models import LinkTokenResponse
-from purch.utils.config import get_settings, Settings
+from purch.common.config import get_settings, Settings
 
 
 def get_plaid_link_token(settings: Settings, user_id: UUID) -> LinkTokenResponse:

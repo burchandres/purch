@@ -7,7 +7,7 @@ from sqlmodel import (
 from typing import Iterable
 
 from purch.core.models import User
-from purch.core.repository import AbstractPostgresRepository
+from purch.common.repository import AbstractPostgresRepository
 
 
 class UserRepository(AbstractPostgresRepository):

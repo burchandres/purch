@@ -16,7 +16,7 @@ def test_settings_override(configure_test_settings, test_db_name, test_client):
     assert test_settings.REDIS_HOST == "test-redis"
     
     # Verify that get_settings() returns the same instance
-    from purch.utils.config import get_settings
+    from purch.common.config import get_settings
     current_settings = get_settings()
     assert current_settings.POSTGRES_DATABASE == test_db_name
     

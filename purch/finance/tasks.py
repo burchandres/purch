@@ -2,13 +2,13 @@ from typing import Annotated
 
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
-from purch.core import broker
+from purch.taskiq import broker
 from purch.core.models import User, Item, Account, Transaction
 from purch.finance.plaid import plaid_client
 from purch.finance.repository import FinanceRepository
 from purch.user.repository import UserRepository
-from purch.utils.config import get_settings
-from purch.utils.logger import get_logger
+from purch.common.config import get_settings
+from purch.common.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,3 +1,5 @@
+import taskiq_fastapi
+
 from taskiq import TaskiqScheduler, SimpleRetryMiddleware, InMemoryBroker
 from taskiq_redis import (
     RedisStreamBroker,
@@ -5,7 +7,7 @@ from taskiq_redis import (
     ListRedisScheduleSource,
 )
 
-from purch.utils.config import get_settings
+from purch.common.config import get_settings
 
 
 def setup_taskiq_broker_and_scheduler():
@@ -24,3 +26,8 @@ def setup_taskiq_broker_and_scheduler():
     scheduler = TaskiqScheduler(broker=broker, sources=[redis_source])
 
     return broker, scheduler
+
+
+broker, scheduler = setup_taskiq_broker_and_scheduler()
+
+taskiq_fastapi.init(broker, "purch.main:app")

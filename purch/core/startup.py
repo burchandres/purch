@@ -1,7 +1,7 @@
 from sqlmodel import create_engine, text
 
-from purch.utils.config import get_settings
-from purch.utils.logger import get_logger
+from purch.common.config import get_settings
+from purch.common.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -4,7 +4,7 @@ from enum import StrEnum, auto
 from sqlmodel import Session, select
 
 from purch.core.models import Item, Account, Transaction
-from purch.core.repository import AbstractPostgresRepository
+from purch.common.repository import AbstractPostgresRepository
 
 
 class FinanceObjects(StrEnum):

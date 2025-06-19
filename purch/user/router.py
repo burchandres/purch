@@ -6,7 +6,7 @@ from fastapi import APIRouter, Response, Depends, HTTPException, status
 from purch.user.repository import UserRepository
 from purch.core.models import User
 from purch.auth.security import oauth2_scheme, get_current_active_user
-from purch.utils.config import get_settings, Settings
+from purch.common.config import get_settings, Settings
 
 router = APIRouter()
 

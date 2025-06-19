@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, create_engine, Session
 from typing import Any, Iterable, Optional
 
-from purch.core.models import User, Item, Account, Transaction
-from purch.utils.config import Settings
+from purch.common.config import Settings
 
 
 class AbstractPostgresRepository(ABC):

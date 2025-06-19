@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
-from purch.utils.config import get_settings, Settings
+from purch.common.config import get_settings, Settings
 from purch.core.models import User
 from purch.user.repository import UserRepository
 
