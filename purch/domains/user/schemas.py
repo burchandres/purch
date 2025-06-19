@@ -1,6 +1,10 @@
+import decimal
 import uuid
 
 from pydantic import BaseModel
+
+from purch.domains.models import SalaryRates
+
 
 class UserCreate(BaseModel):
     username: str = "anders.buch"
@@ -14,3 +18,11 @@ class UserResponse(BaseModel):
     username: str
     first_name: str
     last_name: str
+
+class UserUpdate(BaseModel):
+    first_name: str | None
+    last_name: str | None
+    username: str | None
+    password: str | None
+    salary_rate: SalaryRates | None
+    salary: decimal.Decimal | None

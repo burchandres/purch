@@ -9,7 +9,7 @@ from purch.common.config import get_settings
 
 class AbstractPostgresRepository(ABC):
     settings = get_settings()
-    
+
     def __init__(self):
         engine_url = self.settings.get_postgres_url()
         self.engine = create_engine(engine_url, echo=True)

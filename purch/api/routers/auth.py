@@ -47,6 +47,3 @@ async def login_for_access_token(
         expires_delta=access_token_expires,
     )
     return Token(access_token=access_token, token_type="bearer")
-
-
-
