@@ -10,8 +10,8 @@ from plaid.model.item_public_token_exchange_request import (
 from uuid import UUID
 from datetime import date, timedelta
 
-from purch.infrastructure.plaid.client import plaid_client
-from purch.infrastructure.plaid.schemas import LinkTokenResponse
+from purch.plaid.client import plaid_client
+from purch.plaid.schemas import LinkTokenResponse
 from purch.common.config import get_settings, Settings
 
 
