@@ -3,18 +3,16 @@ import uuid
 from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
-from purch.domains.user.repository import UserRepository
-from purch.domains.user.models import User
-from purch.domains.auth.service import oauth2_scheme, get_current_active_user
-from purch.common.config import get_settings, Settings
+from purch.domains.user.service import UserService
+from purch.domains.models import User
+from purch.domains.user.schemas import UserCreate, UserResponse
+from purch.domains.auth.service import hash_password, oauth2_scheme, get_current_active_user
 
 router = APIRouter()
 
 
-def get_user_repository(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> UserRepository:
-    return UserRepository(settings=settings)
+def get_user_service() -> UserService:
+    return UserService()
 
 
 @router.get("/current", response_model=User)
@@ -37,3 +35,22 @@ async def delete_user(
         )
     user_repo.delete(id=id)
     return Response(status_code=200)
+
+
+@router.post("/register", response_model=User)
+async def register_user(
+    user_data: UserCreate,
+    user_service: Annotated[UserService, Depends(get_user_service)],
+) -> UserResponse:
+    """
+    Register a new user.
+    """
+    new_user = user_service.register_user(user_data=user_data)
+    # If user already exists return bad request
+    if new_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with given username is already registered",
+        )
+    # If not, return the newly created user
+    return new_user
