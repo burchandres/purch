@@ -6,8 +6,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
 from purch.domains.user.models import User
-from purch.infrastructure.plaid.tokens import get_plaid_link_token, get_plaid_access_token
-from purch.infrastructure.plaid.schemas import LinkTokenResponse
+from purch.plaid.tokens import (
+    get_plaid_link_token,
+    get_plaid_access_token,
+)
+from purch.plaid.schemas import LinkTokenResponse
+
 # TODO: fix this import upon figuring where to put these tasks
 from purch.taskiq.tasks import create_and_store_item_and_accounts, sync_transactions
 from purch.domains.auth.service import get_current_active_user

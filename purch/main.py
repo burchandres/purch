@@ -5,8 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from purch.taskiq import broker
 from purch.api.routers import (
-    user_router, 
-    auth_router, 
+    user_router,
+    auth_router,
     finance_router,
 )
 from purch.utils.project_version import version

@@ -184,6 +184,6 @@ async def sync_all_transactions():
         for item in user.items:
             await sync_transactions(
                 plaid_access_token=item.access_token,
-                initial_cursor=item.transaction_cursor
+                initial_cursor=item.transaction_cursor,
             )
     logger.debug("done running sync_all_transactions.")
