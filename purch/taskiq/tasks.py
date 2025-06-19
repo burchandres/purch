@@ -7,7 +7,7 @@ from purch.domains.user.models import User
 from purch.domains.item.models import Item
 from purch.domains.account.models import Account
 from purch.domains.transaction.models import Transaction
-from purch.infrastructure.plaid.client import plaid_client
+from purch.plaid.client import plaid_client
 from purch.domains.user.repository import UserRepository
 from purch.common.config import get_settings
 from purch.common.logger import get_logger

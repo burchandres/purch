@@ -25,9 +25,9 @@ class UserRepository(AbstractPostgresRepository):
         with Session(self.engine) as session:
             statement = select(User)
             results = session.exec(statement)
-            return results
+            return results.all()
 
-    def get_via_id(self, id: uuid.UUID) -> User:
+    def get(self, id: uuid.UUID) -> User:
         with Session(self.engine) as session:
             statement = select(User).where(User.id == id)
             results = session.exec(statement)

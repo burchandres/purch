@@ -103,7 +103,7 @@ def get_current_user(
         raise credentials_exception
 
     # Get user from database
-    user = user_repo.get_via_id(id=user_id)
+    user = user_repo.get(id=user_id)
     if user is None:
         raise credentials_exception
     return user

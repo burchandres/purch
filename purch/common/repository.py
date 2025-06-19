@@ -1,6 +1,8 @@
+import uuid
+
 from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, create_engine, Session
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable
 
 from purch.common.config import Settings
 
@@ -20,7 +22,11 @@ class AbstractPostgresRepository(ABC):
         pass
 
     @abstractmethod
-    def get_all(self, object_type: Optional[str]):
+    def get(self, id: str | uuid.UUID):
+        pass
+
+    @abstractmethod
+    def get_all(self):
         pass
 
     @abstractmethod
