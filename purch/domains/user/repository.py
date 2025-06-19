@@ -6,7 +6,7 @@ from sqlmodel import (
 )
 from typing import Iterable
 
-from purch.domains.user.models import User
+from purch.domains.models import User
 from purch.common.repository import AbstractPostgresRepository
 
 

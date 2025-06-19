@@ -12,15 +12,15 @@ from purch.domains.auth.service import (
     hash_password,
 )
 from purch.domains.user.repository import UserRepository
-from purch.domains.user.models import User
+from purch.domains.models import User
 
 router = APIRouter()
 
 
 def get_user_repository(
-    settings: Annotated[Settings, Depends(get_settings)],
+    user_repo: Annotated[Settings, Depends(UserRepository())],
 ) -> UserRepository:
-    return UserRepository(settings=settings)
+    return UserRepository()
 
 
 # TODO: see what else we have to do to make this a completely async call

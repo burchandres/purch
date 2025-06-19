@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
 from purch.taskiq import broker

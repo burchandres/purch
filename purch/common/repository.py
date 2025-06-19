@@ -4,12 +4,14 @@ from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, create_engine, Session
 from typing import Any, Iterable
 
-from purch.common.config import Settings
+from purch.common.config import get_settings
 
 
 class AbstractPostgresRepository(ABC):
-    def __init__(self, settings: Settings):
-        engine_url = settings.get_postgres_url()
+    settings = get_settings()
+    
+    def __init__(self):
+        engine_url = self.settings.get_postgres_url()
         self.engine = create_engine(engine_url, echo=True)
         SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
 
