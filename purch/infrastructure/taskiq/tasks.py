@@ -13,6 +13,7 @@ from purch.domains.user.repository import UserRepository
 from purch.domains.finance.service import FinanceService
 from purch.domains.finance.schemas import ItemCreate, AccountCreate
 from purch.common.logger import get_logger
+from purch.common.config import get_settings, Settings
 
 logger = get_logger(__name__)
 
@@ -37,12 +38,12 @@ async def create_and_add_item_and_accounts(
     logger.debug(f"Task {context.message.task_id}: done.")
 
 
-@broker.task()
+@broker.task(retry_on_error=True)
 async def sync_transactions(
     user: User,
     finance_service: Annotated[FinanceService, TaskiqDepends(get_finance_service)],
     context: Annotated[Context, TaskiqDepends()],
-    max_workers: int = 10,
+    settings: Annotated[Settings, TaskiqDepends(get_settings)]
 ):
     """
     This retrieves all output from the /transactions/sync endpoint of Plaid.
@@ -60,7 +61,7 @@ async def sync_transactions(
         finance_service (FinanceService): finance service object to leverage for doing all heavy work of syncing transactions
     """
     # TODO: figure out how to rewrite this so we can requeue futures that fail
-    with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with futures.ThreadPoolExecutor(max_workers=settings.MAX_CONCURRENT_WORKER_NUM) as executor:
         submitted_futures = {
             executor.submit(finance_service.sync_transactions, item): item
             for item in user.items

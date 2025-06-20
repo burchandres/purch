@@ -79,6 +79,9 @@ class Settings(BaseSettings):
     )
     PLAID_LANGUAGE: str = Field(default="en")
 
+    # PURCH ENV
+    MAX_CONCURRENT_WORKER_NUM: int = Field(default=10)
+
     def get_plaid_host(self):
         """Returns the appropriate Plaid Enum Environment variable based on PLAID_ENV value."""
         if self.PLAID_ENV == PlaidEnvs.sandbox:
