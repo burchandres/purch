@@ -1,6 +1,6 @@
 import taskiq_fastapi
 
-from taskiq import TaskiqScheduler, SimpleRetryMiddleware, InMemoryBroker
+from taskiq import TaskiqScheduler, SimpleRetryMiddleware
 from taskiq_redis import (
     RedisStreamBroker,
     RedisAsyncResultBackend,

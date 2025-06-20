@@ -4,7 +4,7 @@ from typing import Annotated
 from taskiq import TaskiqDepends, Context
 
 from purch.infrastructure.taskiq import broker
-from purch.infrastructure.taskiq.dependencies import (
+from purch.common.dependencies import (
     get_finance_service,
     get_user_repository,
 )
@@ -43,7 +43,7 @@ async def sync_transactions(
     user: User,
     finance_service: Annotated[FinanceService, TaskiqDepends(get_finance_service)],
     context: Annotated[Context, TaskiqDepends()],
-    settings: Annotated[Settings, TaskiqDepends(get_settings)]
+    settings: Annotated[Settings, TaskiqDepends(get_settings)],
 ):
     """
     This retrieves all output from the /transactions/sync endpoint of Plaid.
@@ -59,9 +59,14 @@ async def sync_transactions(
     Args:
         user (User): the user to sync all transactions for
         finance_service (FinanceService): finance service object to leverage for doing all heavy work of syncing transactions
+
+    Returns:
+        None. Syncs to postgres.
     """
     # TODO: figure out how to rewrite this so we can requeue futures that fail
-    with futures.ThreadPoolExecutor(max_workers=settings.MAX_CONCURRENT_WORKER_NUM) as executor:
+    with futures.ThreadPoolExecutor(
+        max_workers=settings.MAX_CONCURRENT_WORKER_NUM
+    ) as executor:
         submitted_futures = {
             executor.submit(finance_service.sync_transactions, item): item
             for item in user.items
@@ -72,11 +77,11 @@ async def sync_transactions(
             try:
                 future.result()
                 logger.debug(
-                    f"Task {context.message.task_id}: Successfully synced transactions for item {item.id} for user {user.id}"
+                    f"Task {context.message.task_id}: successfully synced transactions for item {item.id} for user {user.id}"
                 )
             except Exception as e:
                 logger.warning(
-                    f"Task {context.message.task_id}: Error completing sync transaction task for item {item.id} for user {user.id}."
+                    f"Task {context.message.task_id}: error completing sync transaction task for item {item.id} for user {user.id}."
                 )
 
 

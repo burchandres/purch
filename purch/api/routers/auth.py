@@ -5,8 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.common.config import get_settings, Settings
-from purch.domains.auth.schemas import Token
-from purch.domains.auth.service import (
+from purch.common.dependencies import get_user_repository
+from purch.infrastructure.auth.schemas import Token
+from purch.infrastructure.auth.service import (
     create_purch_jwt_access_token,
     verify_password,
     hash_password,
@@ -15,12 +16,6 @@ from purch.domains.user.repository import UserRepository
 from purch.domains.models import User
 
 router = APIRouter()
-
-
-def get_user_repository(
-    user_repo: Annotated[Settings, Depends(UserRepository())],
-) -> UserRepository:
-    return UserRepository()
 
 
 # TODO: see what else we have to do to make this a completely async call

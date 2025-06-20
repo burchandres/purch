@@ -1,7 +1,9 @@
+import decimal
+
 from pydantic import BaseModel
 from typing import Optional
 
-from purch.domains.models import User, Item, Transaction
+from purch.domains.models import User, Item
 
 
 class ItemCreate(BaseModel):
@@ -10,19 +12,9 @@ class ItemCreate(BaseModel):
     user: User
 
 
-class ItemUpdate(BaseModel):
-    id: str
-    # TODO: fill out the rest with what we could update for an item
-
-
 class AccountCreate(BaseModel):
     access_token: str
     item: Item
-
-
-class AccountUpdate(BaseModel):
-    id: str
-    # TODO: fill out the rest with what we could update for an account
 
 
 class TransactionRemove(BaseModel):
@@ -30,5 +22,15 @@ class TransactionRemove(BaseModel):
     account_id: str
 
 
-class TransactionUpdate(BaseModel, Transaction):
+class TransactionUpdate(BaseModel):
+    id: str
     pending_transaction_id: str
+    # optional fields to update
+    account_id: Optional[str]
+    category: Optional[str]
+    authorized_date: Optional[str]
+    settled_date: Optional[str]
+    merchant_name: Optional[str]
+    amount: Optional[decimal.Decimal]
+    currency_code: Optional[str]
+    pending: Optional[bool]

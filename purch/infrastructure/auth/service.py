@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 from purch.common.config import get_settings, Settings
+from purch.common.dependencies import get_user_repository
 from purch.domains.models import User
 from purch.domains.user.repository import UserRepository
 
@@ -80,9 +81,9 @@ def create_purch_jwt_access_token(
 def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     settings: Annotated[Settings, Depends(get_settings)],
+    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
 ) -> User:
     """Decode JWT token and return current user."""
-    user_repo = UserRepository(settings=settings)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

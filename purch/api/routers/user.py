@@ -3,18 +3,12 @@ import uuid
 from typing import Annotated
 from fastapi import APIRouter, Response, Depends, HTTPException, status
 
-from purch.domains.user.repository import UserRepository
+from purch.common.dependencies import get_user_repository
 from purch.domains.models import User
-from purch.domains.auth.service import oauth2_scheme, get_current_active_user
-from purch.common.config import get_settings, Settings
+from purch.domains.user.repository import UserRepository
+from purch.infrastructure.auth.service import oauth2_scheme, get_current_active_user
 
 router = APIRouter()
-
-
-def get_user_repository(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> UserRepository:
-    return UserRepository(settings=settings)
 
 
 @router.get("/current", response_model=User)

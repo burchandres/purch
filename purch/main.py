@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from purch.taskiq import broker
+from purch.infrastructure.taskiq import broker
 from purch.api.routers import (
     user_router,
     auth_router,

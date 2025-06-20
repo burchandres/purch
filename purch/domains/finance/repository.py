@@ -4,8 +4,6 @@ from sqlmodel import Session, select, delete, update
 
 from purch.common.repository import AbstractPostgresRepository
 from purch.domains.finance.schemas import (
-    ItemUpdate,
-    AccountUpdate,
     TransactionUpdate,
 )
 from purch.domains.models import Item, Account, Transaction
@@ -34,14 +32,6 @@ class ItemRepository(AbstractPostgresRepository):
             results = session.exec(statement)
             return results.all()
 
-    def update(self, item_data: ItemUpdate):
-        with Session(self.engine) as session:
-            statement = (
-                # TODO: fix this
-                update(Item).where(Item.id == item_data.id).values(item_data.__dict__)
-            )
-            session.exec(statement)
-            session.commit()
 
     def delete(self, id: str):
         with Session(self.engine) as session:
@@ -73,16 +63,6 @@ class AccountRepository(AbstractPostgresRepository):
             results = session.exec(statement)
             return results.all()
 
-    def update(self, account_data: AccountUpdate):
-        with Session(self.engine) as session:
-            statement = (
-                # TODO: Fix this
-                update(Account)
-                .where(Account.id == account_data.id)
-                .values(account_data.__dict__)
-            )
-            session.exec(statement)
-            session.commit()
 
     def delete(self, id: str):
         with Session(self.engine) as session:

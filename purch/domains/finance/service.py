@@ -170,10 +170,7 @@ class FinanceService:
                         merchant_name=txn["merchant_name"],
                         amount=txn["amount"],
                         currency_code=txn["iso_currency_code"],
-                        pending=txn["pending"],
-                        account=list(
-                            filter(lambda x: x.id == txn["account_id"], item.accounts)
-                        )[0],
+                        pending=txn["pending"]
                     )
                 )
             # delete transactions flagged as removed by plaid
