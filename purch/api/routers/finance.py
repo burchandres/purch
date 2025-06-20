@@ -1,11 +1,12 @@
 import plaid
-import json
+import time
 
 from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
 from purch.domains.models import User
+from purch.domains.user.service import UserService
 from purch.infrastructure.plaid.tokens import (
     get_plaid_link_token,
     get_plaid_access_token,
@@ -16,6 +17,7 @@ from purch.infrastructure.plaid.schemas import LinkTokenResponse
 from purch.infrastructure.taskiq.tasks import create_and_add_item_and_accounts, sync_transactions
 from purch.infrastructure.auth.service import get_current_active_user
 from purch.common.config import Settings, get_settings
+from purch.api.dependencies import get_user_service
 
 router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
@@ -34,22 +36,27 @@ async def get_link_token(
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e.body)
 
 
-# TODO: When this endpoint is hit...
-#       ...sync transactions in a background task
 @router.post("/plaid/access-token")
 async def exchange_for_access_token(
-    public_token: str, user: Annotated[User, Depends(get_current_active_user)]
+    public_token: str, 
+    user: Annotated[User, Depends(get_current_active_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)]
 ):
     try:
         plaid_access_token = get_plaid_access_token(public_token=public_token)
         # kick off task to store the item and relevant accounts
         # associated with the above access token and user
-        await create_and_add_item_and_accounts.kiq(
+        item_accounts_task = await create_and_add_item_and_accounts.kiq(
             access_token=plaid_access_token["access_token"],
             item_id=plaid_access_token["item_id"],
             user=user,
         )
-        await sync_transactions.kiq(user=user)
+        # wait till above task finishes
+        while not item_accounts_task.is_ready():
+            time.sleep(0.1)
+        # kick off task to sync transactions
+        # TODO: setup webhook to pull whenever new transactions are available?
+        await sync_transactions.kiq(user=user_service.refresh_user(user))
         return Response(
             status_code=status.HTTP_200_OK, content="Syncing information for you"
         )

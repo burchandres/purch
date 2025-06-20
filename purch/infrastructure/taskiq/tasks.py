@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 
 
 @broker.task(retry_on_error=True)
-async def create_and_add_item_and_accounts(
+def create_and_add_item_and_accounts(
     access_token: str,
     item_id: str,
     user: User,
