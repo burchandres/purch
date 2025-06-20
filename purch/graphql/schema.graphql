@@ -30,14 +30,14 @@ type Item {
 
 type Transaction {
     id: String!
-    account_id: String!
+    accountId: String!
     account: Account!
     category: String!
-    authorized_date: String!
-    settled_date: String!
+    authorizedDate: String!
+    settledDate: String!
     name: String!
     amount: Float!
-    currency_code: String!
+    currencyCode: String!
     userId: String!
     user: User!
 }
@@ -54,5 +54,5 @@ type User {
     salaryRate: SalaryRates!
     categoryBudgets: String  # TODO: Verify
     item: Item
-    transactions: [User]!
+    transactions: [Transaction]!
 }
