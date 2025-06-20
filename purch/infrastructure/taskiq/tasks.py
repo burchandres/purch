@@ -59,6 +59,7 @@ async def sync_transactions(
         user (User): the user to sync all transactions for
         finance_service (FinanceService): finance service object to leverage for doing all heavy work of syncing transactions
     """
+    # TODO: figure out how to rewrite this so we can requeue futures that fail
     with futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         submitted_futures = {
             executor.submit(finance_service.sync_transactions, item): item
@@ -74,7 +75,7 @@ async def sync_transactions(
                 )
             except Exception as e:
                 logger.warning(
-                    f"Task {context.message.task_id}: Error completing sync transaction task for item {item.id} for user {user.id}: {str(e)}"
+                    f"Task {context.message.task_id}: Error completing sync transaction task for item {item.id} for user {user.id}."
                 )
 
 

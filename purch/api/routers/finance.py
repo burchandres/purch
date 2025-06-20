@@ -13,8 +13,8 @@ from purch.infrastructure.plaid.tokens import (
 from purch.infrastructure.plaid.schemas import LinkTokenResponse
 
 # TODO: fix this import upon figuring where to put these tasks
-from purch.taskiq.tasks import create_and_add_item_and_accounts, sync_transactions
-from purch.domains.auth.service import get_current_active_user
+from purch.infrastructure.taskiq.tasks import create_and_add_item_and_accounts, sync_transactions
+from purch.infrastructure.auth.service import get_current_active_user
 from purch.common.config import Settings, get_settings
 
 router = APIRouter(dependencies=[Depends(get_current_active_user)])
@@ -49,7 +49,7 @@ async def exchange_for_access_token(
             item_id=plaid_access_token["item_id"],
             user=user,
         )
-        await sync_transactions.kiq()
+        await sync_transactions.kiq(user=user)
         return Response(
             status_code=status.HTTP_200_OK, content="Syncing information for you"
         )
