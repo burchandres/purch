@@ -9,6 +9,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 3s
+      retries: 40
     networks:
       - purch
 
@@ -29,6 +34,7 @@ services:
       - purch
 
   purch:
+    &purch
     build:
       context: .
       dockerfile: docker/dockerfile.purch
@@ -36,43 +42,30 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - purch
     secrets:
       - env_file
 
   taskiq-worker:
-    build:
-      context: .
-      dockerfile: docker/dockerfile.purch
+    <<: *purch
+    ports: []
     command: taskiq worker purch.infrastructure.taskiq:broker --fs-discover
-    depends_on:
-      redis:
-        condition: service_healthy 
-      purch:
-        condition: service_started
     restart: unless-stopped
     networks:
       - purch
-    secrets:
-      - env_file
 
   taskiq-scheduler:
-    build:
-      context: .
-      dockerfile: docker/dockerfile.purch
+    <<: *purch
+    ports: []
     command: taskiq scheduler purch.infrastructure.taskiq:scheduler --fs-discover
-    depends_on:
-      redis:
-        condition: service_healthy
-      purch:
-        condition: service_started
     restart: unless-stopped
     networks:
       - purch
-    secrets:
-      - env_file
 
   
 networks:
