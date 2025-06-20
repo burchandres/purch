@@ -51,7 +51,7 @@ def test_db_name():
 
 @pytest.fixture
 def configure_get_current_active_user(test_user):
-    from purch.auth.security import get_current_active_user
+    from purch.infrastructure.auth.security import get_current_active_user
     
     # Clear any existing overrides
     app.dependency_overrides = {}
@@ -96,8 +96,8 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     # Ensure all modules use our test settings
     modules_to_patch = [
         "purch.core.startup.get_settings", 
-        "purch.auth.router.get_settings",
-        "purch.auth.security.get_settings",
+        "purch.infrastructure.auth.router.get_settings",
+        "purch.infrastructure.auth.security.get_settings",
         "purch.finance.plaid.get_settings",
         "purch.finance.tokens.get_settings",
         "purch.user.router.get_settings",

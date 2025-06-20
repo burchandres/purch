@@ -6,7 +6,7 @@ from fastapi import status
 
 from purch.core.models import User
 from purch.user.repository import UserRepository
-from purch.auth.security import verify_password
+from purch.infrastructure.auth.security import verify_password
 
 
 AUTH_URL = "/auth"

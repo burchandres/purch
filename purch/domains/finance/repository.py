@@ -1,63 +1,133 @@
 from typing import Iterable
-from enum import StrEnum, auto
 
-from sqlmodel import Session, select, delete
+from sqlmodel import Session, select, delete, update
 
 from purch.common.repository import AbstractPostgresRepository
+from purch.domains.finance.schemas import (
+    ItemUpdate,
+    AccountUpdate,
+    TransactionUpdate,
+)
 from purch.domains.models import Item, Account, Transaction
 
 
-class FinanceObjectTypes(StrEnum):
-    item = auto()
-    account = auto()
-    transaction = auto()
-
-
-class FinanceRepository(AbstractPostgresRepository):
-    objects: dict[str, Item | Account | Transaction] = {
-        FinanceObjectTypes.item.value: Item,
-        FinanceObjectTypes.account.value: Account,
-        FinanceObjectTypes.transaction.value: Transaction,
-    }
-
-    def add(self, object: Item | Account | Transaction):
+class ItemRepository(AbstractPostgresRepository):
+    def add(self, object: Item):
         with Session(self.engine) as session:
             session.add(object)
             session.commit()
 
-    def add_all(
-        self, accounts: Iterable[Item] | Iterable[Account] | Iterable[Transaction]
-    ):
+    def add_all(self, objects: Iterable[Item]):
         with Session(self.engine) as session:
-            session.add_all(accounts)
+            session.add_all(objects)
             session.commit()
 
-    def get(self, id: str, object_type: str) -> Item | Account | Transaction | None:
+    def get(self, id: str) -> Item | None:
         with Session(self.engine) as session:
-            object = self._get_object(object_type)
-            statement = select(object).where(object.id == id)
+            statement = select(Item).where(Item.id == id)
             results = session.exec(statement)
             return results.first()
 
-    def get_all(
-        self, object_type: str
-    ) -> Iterable[Item] | Iterable[Account] | Iterable[Transaction]:
+    def get_all(self) -> Iterable[Item]:
         with Session(self.engine) as session:
-            object = self._get_object(object_type)
-            statement = select(object)
+            statement = select(Item)
             results = session.exec(statement)
             return results.all()
 
-    def delete(self, id: str, object_type: str):
+    def update(self, item_data: ItemUpdate):
         with Session(self.engine) as session:
-            object = self._get_object(object_type)
-            statement = delete(object).where(object.id == id)
+            statement = (
+                # TODO: fix this
+                update(Item).where(Item.id == item_data.id).values(item_data.__dict__)
+            )
             session.exec(statement)
             session.commit()
 
-    def _get_object(self, object_type: str) -> Item | Account | Transaction:
-        try:
-            object: Item | Account | Transaction = self.objects[object_type]
-        except KeyError:
-            raise ValueError("invalid object type")
-        return object
+    def delete(self, id: str):
+        with Session(self.engine) as session:
+            statement = delete(Item).where(Item.id == id)
+            session.exec(statement)
+            session.commit()
+
+
+class AccountRepository(AbstractPostgresRepository):
+    def add(self, object: Account):
+        with Session(self.engine) as session:
+            session.add(object)
+            session.commit()
+
+    def add_all(self, objects: Iterable[Account]):
+        with Session(self.engine) as session:
+            session.add_all(objects)
+            session.commit()
+
+    def get(self, id: str) -> Account | None:
+        with Session(self.engine) as session:
+            statement = select(Account).where(Account.id == id)
+            results = session.exec(statement)
+            return results.first()
+
+    def get_all(self) -> Iterable[Account]:
+        with Session(self.engine) as session:
+            statement = select(Account)
+            results = session.exec(statement)
+            return results.all()
+
+    def update(self, account_data: AccountUpdate):
+        with Session(self.engine) as session:
+            statement = (
+                # TODO: Fix this
+                update(Account)
+                .where(Account.id == account_data.id)
+                .values(account_data.__dict__)
+            )
+            session.exec(statement)
+            session.commit()
+
+    def delete(self, id: str):
+        with Session(self.engine) as session:
+            statement = delete(Account).where(Account.id == id)
+            session.exec(statement)
+            session.commit()
+
+
+class TransactionRepository(AbstractPostgresRepository):
+    def add(self, object: Transaction):
+        with Session(self.engine) as session:
+            session.add(object)
+            session.commit()
+
+    def add_all(self, objects: Iterable[Transaction]):
+        with Session(self.engine) as session:
+            session.add_all(objects)
+            session.commit()
+
+    def get(self, id: str) -> Transaction | None:
+        with Session(self.engine) as session:
+            statement = select(Transaction).where(Transaction.id == id)
+            results = session.exec(statement)
+            return results.first()
+
+    def get_all(self) -> Iterable[Transaction]:
+        with Session(self.engine) as session:
+            statement = select(Transaction)
+            results = session.exec(statement)
+            return results.all()
+
+    def update(self, transaction_data: TransactionUpdate):
+        with Session(self.engine) as session:
+            transaction_data_dict = transaction_data.__dict__
+            pending_transaction_id = transaction_data_dict.pop("pending_transaction_id")
+            statement = (
+                update(Transaction)
+                .where(Transaction.id == pending_transaction_id)
+                .values(transaction_data_dict)
+            )
+            session.exec(statement)
+            session.commit()
+
+    def delete(self, id: str):
+        with Session(self.engine) as session:
+            statement = delete(Transaction).where(Transaction.id == id)
+            session.exec(statement)
+            session.commit()

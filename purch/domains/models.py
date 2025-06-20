@@ -3,7 +3,7 @@ import datetime as dt
 import decimal
 
 from enum import StrEnum, auto
-from sqlmodel import SQLModel, Field, JSON, Column, Relationship
+from sqlmodel import SQLModel, Field, Relationship
 
 
 class SalaryRates(StrEnum):
@@ -31,11 +31,24 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     salary: decimal.Decimal = Field(default=decimal.Decimal(3958.33))
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
-    category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
     items: list["Item"] | None = Relationship(
         back_populates="user", cascade_delete=True
     )
+    categories: list["Category"] | None = Relationship(
+        back_populates="user", cascade_delete=True
+    )
+
+
+class Category(SQLModel, table=True):
+    __tablename__ = "categories"
+
+    user_id: uuid.UUID = Field(index=True, foreign_key="users.id", nullable=False)
+    name: str = Field(default="groceries")
+    current_spending: decimal.Decimal = Field(default=0)
+    budget: decimal.Decimal = Field(default=350)
+
+    user: User = Relationship(back_populates="categories")
 
 
 class Item(SQLModel, table=True):
@@ -71,9 +84,10 @@ class Transaction(SQLModel, table=True):
     account_id: str = Field(index=True, foreign_key="accounts.id", nullable=False)
     category: str = Field(default="Entertainment", index=True)
     authorized_date: str = Field(default="2025-05-09", index=True)
-    settled_date: str | None = Field(default="2025-05-10")
-    name: str | None = Field(default="Noah Kahan")
+    settled_date: str | None = Field()
+    merchant_name: str | None = Field(default="Noah Kahan")
     amount: decimal.Decimal = Field(default="100")
     currency_code: str = Field("USD")
+    pending: bool = Field(default=False)
 
     account: Account = Relationship(back_populates="transactions")
