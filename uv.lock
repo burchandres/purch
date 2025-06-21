@@ -517,6 +517,7 @@ dependencies = [
     { name = "sqlmodel" },
     { name = "taskiq", extra = ["reload"] },
     { name = "taskiq-fastapi" },
+    { name = "taskiq-pipelines" },
     { name = "taskiq-redis" },
 ]
 
@@ -548,6 +549,7 @@ requires-dist = [
     { name = "sqlmodel", specifier = ">=0.0.24" },
     { name = "taskiq", extras = ["reload"], specifier = ">=0.11.17" },
     { name = "taskiq-fastapi", specifier = ">=0.3.5" },
+    { name = "taskiq-pipelines", specifier = ">=0.1.4" },
     { name = "taskiq-redis", specifier = ">=1.0.9" },
 ]
 
@@ -1000,6 +1002,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cd/29/d4f08a3730d23870f73404d855e5145d13d0bcf1e5376008522804afa51b/taskiq_fastapi-0.3.5.tar.gz", hash = "sha256:0df3df3e7e0a355b9f21a4f81429ad95d0d33af305e75039654ac13ae26c538f", size = 5102 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/06/6ba382f300aebc5d739cd01d708572329d4360ea0c02b7734583a2894b16/taskiq_fastapi-0.3.5-py3-none-any.whl", hash = "sha256:35553cb05cfb8e34d50179bad747d79a42d782f5b9c529128ad64263af8c246f", size = 5116 },
+]
+
+[[package]]
+name = "taskiq-pipelines"
+version = "0.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "taskiq" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/57/79/b099aec44fed65f077d88fa4e4a876b7f5b3b50f46f408feb36a4b3c3a71/taskiq_pipelines-0.1.4.tar.gz", hash = "sha256:0ccc58a7d5bc0f19457bf25aec6e8b3d82ce5e63ae4416bc85b47f027aede84b", size = 12885 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e3/e2/0ba3c3797f466cebd5431d8ac70146704cc34346332127a19b2d5f6b28ac/taskiq_pipelines-0.1.4-py3-none-any.whl", hash = "sha256:09b4999f79e74552e4a751f4670c1829eaf494a28ee06d3f47ec5f6f5bf5105d", size = 15810 },
 ]
 
 [[package]]

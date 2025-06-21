@@ -5,13 +5,13 @@ from taskiq import TaskiqDepends, Context
 
 from purch.infrastructure.taskiq import broker
 from purch.common.dependencies import (
-    get_finance_service,
+    get_budget_service,
     get_user_repository,
+    get_user_service
 )
-from purch.domains.models import User
+from purch.domains import UserService, BudgetService
+from purch.domains.models import User, Item
 from purch.domains.user.repository import UserRepository
-from purch.domains.finance.service import FinanceService
-from purch.domains.finance.schemas import ItemCreate, AccountCreate
 from purch.common.logger import get_logger
 from purch.common.config import get_settings, Settings
 
@@ -19,29 +19,49 @@ logger = get_logger(__name__)
 
 
 @broker.task(retry_on_error=True)
-def create_and_add_item_and_accounts(
+def store_item(
     access_token: str,
     item_id: str,
     user: User,
-    finance_service: Annotated[FinanceService, TaskiqDepends(get_finance_service)],
-    context: Annotated[Context, TaskiqDepends()],
+    finance_service: Annotated[UserService, TaskiqDepends(get_user_service)],
 ):
-    logger.debug(
-        f"Task {context.message.task_id}: adding item and accounts for user {user.id}"
-    )
+    """
+    Taskiq wrapper task for the FinanceService.store_user_item() method.
+
+    Args:
+        access_token (str): Plaid provided access token of the item
+        item_id (str): id of the plaid item
+        user (User): User the item is connected to
+
+    Returns:
+        Item: The item created and stored.
+    """
     # create and store item
-    item = finance_service.add_item(
-        ItemCreate(access_token=access_token, item_id=item_id, user=user)
+    item = finance_service.store_user_item(
+        access_token=access_token, item_id=item_id, user=user
     )
-    # create and store associated accounts
-    finance_service.add_accounts(AccountCreate(access_token=access_token, item=item))
-    logger.debug(f"Task {context.message.task_id}: done.")
+    return item
+
+
+@broker.task(retry_on_error=True)
+def store_accounts(
+    item: Item,
+    user_service: Annotated[UserService, TaskiqDepends(get_user_service)],
+):
+    """
+    Taskiq wrapper class for FinanceService.store_user_accounts() method.
+
+    Args:
+        access_token (str): Plaid provided access token of the item
+    """
+    # create and store accounts
+    user_service.store_user_accounts(item)
 
 
 @broker.task(retry_on_error=True)
 async def sync_transactions(
     user: User,
-    finance_service: Annotated[FinanceService, TaskiqDepends(get_finance_service)],
+    budget_service: Annotated[BudgetService, TaskiqDepends(get_budget_service)],
     context: Annotated[Context, TaskiqDepends()],
     settings: Annotated[Settings, TaskiqDepends(get_settings)],
 ):
@@ -68,7 +88,7 @@ async def sync_transactions(
         max_workers=settings.MAX_CONCURRENT_WORKER_NUM
     ) as executor:
         submitted_futures = {
-            executor.submit(finance_service.sync_transactions, item): item
+            executor.submit(budget_service.sync_transactions, item): item
             for item in user.items
         }
 

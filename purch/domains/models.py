@@ -43,9 +43,11 @@ class User(SQLModel, table=True):
 class Category(SQLModel, table=True):
     __tablename__ = "categories"
 
-    id: uuid.UUID | None = Field(default_factory=uuid.uuid4, primary_key=True, unique=True)
+    id: uuid.UUID | None = Field(
+        default_factory=uuid.uuid4, primary_key=True, unique=True
+    )
     user_id: uuid.UUID = Field(index=True, foreign_key="users.id", nullable=False)
-    label: str = Field(default="groceries")
+    label: str = Field(default="Groceries")
     current_spending: decimal.Decimal = Field(default=0)
     budget: decimal.Decimal = Field(default=350)
 

@@ -3,24 +3,6 @@ import decimal
 from pydantic import BaseModel
 from typing import Optional
 
-from purch.domains.models import User, Item
-
-
-class ItemCreate(BaseModel):
-    access_token: str
-    item_id: str
-    user: User
-
-
-class AccountCreate(BaseModel):
-    access_token: str
-    item: Item
-
-
-class TransactionRemove(BaseModel):
-    id: str
-    account_id: str
-
 
 class TransactionUpdate(BaseModel):
     id: str
