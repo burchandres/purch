@@ -16,3 +16,11 @@ class TransactionUpdate(BaseModel):
     amount: Optional[decimal.Decimal]
     currency_code: Optional[str]
     pending: Optional[bool]
+
+    def to_dict(self):
+        tmp = self.__dict__
+        to_return = {}
+        for key, value in tmp.items():
+            if value is not None:
+                to_return.update(key=value)
+        return to_return
