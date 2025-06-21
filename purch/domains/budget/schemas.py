@@ -19,8 +19,5 @@ class TransactionUpdate(BaseModel):
 
     def to_dict(self):
         tmp = self.__dict__
-        to_return = {}
-        for key, value in tmp.items():
-            if value is not None:
-                to_return.update(key=value)
+        to_return = {key: value for key, value in tmp.items() if value is not None}
         return to_return
