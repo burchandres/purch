@@ -23,7 +23,6 @@ class BudgetRepository(AbstractPostgresRepository):
 
     def delete_transactions(self, transaction_ids: list[str]):
         with Session(self.engine) as session:
-            for txn_id in transaction_ids:
-                statement = delete(Transaction).where(Transaction.id == txn_id)
-                session.exec(statement)
+            statement = delete(Transaction).where(Transaction.id in transaction_ids)
+            session.exec(statement)
             session.commit()
