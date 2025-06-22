@@ -3,18 +3,14 @@ import json
 import pytest
 
 from fastapi import status
-from purch.finance.tokens import get_plaid_access_token
-
-# TODO: write tests for connecting to plaid...
-#       ...getting link_token to register
-#       ...getting access_token from a public_token
-#       ...pulling transactions
+from purch.infrastructure.plaid.tokens import get_plaid_access_token
 
 BASE_FINANCE_URL = "/finance"
 LINK_TOKEN_URL = BASE_FINANCE_URL + "/plaid/link-token"
 SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_token/create"
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
+
 
 @pytest.mark.anyio
 async def test_get_link_token(

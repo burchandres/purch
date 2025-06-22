@@ -99,8 +99,8 @@ async def get_link_token(
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e.body)
 
 
-@router.post("/pull-bank-accounts")
-async def pull_bank_accounts(
+@router.post("/sync-bank-accounts")
+async def sync_bank_accounts(
     public_token: str,
     user: Annotated[User, Depends(AuthService.get_current_active_user)],
 ):

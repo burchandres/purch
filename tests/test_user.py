@@ -4,17 +4,17 @@ import pytest
 
 from fastapi import status
 
-from purch.core.models import User
-from purch.user.repository import UserRepository
-from purch.infrastructure.auth.security import verify_password
+from purch.domains.models import User
+from purch.domains.user.repository import UserRepository
+from purch.infrastructure.auth.service import AuthService
 
 
-AUTH_URL = "/auth"
-REGISTER_URL = AUTH_URL + "/register"
-LOGIN_URL = AUTH_URL + "/token"
-USER_URL = "/user"
-CURRENT_USER_URL = USER_URL + "/current"
-DELETE_USER_URL = USER_URL + "/delete"
+BASE_USER_URL = "/user"
+CURRENT_USER_URL = BASE_USER_URL + "/current"
+TOKEN_URL = BASE_USER_URL + "/token"
+REGISTER_URL = BASE_USER_URL + "/register"
+LINK_TOKEN_URL = BASE_USER_URL + "/link-token"
+DELETE_USER_URL = BASE_USER_URL + "/delete"
 
 pytestmark = pytest.mark.anyio
 
@@ -35,13 +35,14 @@ async def test_user_registration(configure_test_settings, test_client, test_user
         REGISTER_URL,
         json=test_user
     )
+    auth_service = AuthService()
     # Check we get a 200 response
     assert response.status_code == status.HTTP_200_OK
     user_repository = UserRepository(settings=test_settings)
     registered_user = user_repository.get_via_username(test_user["username"])
     assert registered_user
     assert registered_user.username == test_user["username"]
-    assert verify_password(test_user["password"], registered_user.password)
+    assert auth_service.verify_password(test_user["password"], registered_user.password)
 
 
 async def test_valid_user_login(configure_test_settings, test_client, test_user):
@@ -59,7 +60,7 @@ async def test_valid_user_login(configure_test_settings, test_client, test_user)
     
     # Now hit the login endpoint with form data (mimicking OAuth2PasswordRequestForm)
     login_response = await test_client.post(
-        LOGIN_URL,
+        TOKEN_URL,
         data={
             "username": test_user["username"],
             "password": test_user["password"],
@@ -91,7 +92,7 @@ async def test_invalid_password_login(configure_test_settings, test_client, test
     
     # Try to login with incorrect password
     login_response = await test_client.post(
-        LOGIN_URL,
+        TOKEN_URL,
         data={
             "username": test_user["username"],
             "password": "wrong_password",
@@ -107,7 +108,7 @@ async def test_invalid_username_login(configure_test_settings, test_client):
     """Test login failure with non-existent username."""
     # Try to login with a username that doesn't exist
     login_response = await test_client.post(
-        LOGIN_URL,
+        TOKEN_URL,
         data={
             "username": "nonexistent_user",
             "password": "any_password",
@@ -132,7 +133,7 @@ async def test_token_structure(configure_test_settings, test_db_name, test_clien
     
     # Login to get token
     login_response = await test_client.post(
-        LOGIN_URL,
+        TOKEN_URL,
         data={
             "username": test_user["username"],
             "password": test_user["password"],
@@ -192,10 +193,10 @@ async def test_authenticated_current_user(configure_test_settings, test_db_name,
 
 async def test_delete_own_account(configure_test_settings, test_client):
     """Test deleting own account with valid token succeeds."""
-    test_settings = configure_test_settings
     # Register a user and get token
+    user_repo = UserRepository()
     test_user = await register_and_get_user(test_client)
-    test_user_id = UserRepository(settings=test_settings).get_via_username(username=test_user.username).id
+    test_user_id = user_repo.get_via_username(username=test_user.username).id
     token = await get_auth_token(test_client, test_user)
     
     # Delete the user account
@@ -232,7 +233,8 @@ async def test_delete_other_account(configure_test_settings, test_db_name, test_
         json=json_test_user2
     )
     assert register_response2.status_code == status.HTTP_200_OK
-    registered_user2_id = UserRepository(settings=test_settings).get_via_username(username=test_user2.username).id
+    user_repo = UserRepository()
+    registered_user2_id = user_repo.get_via_username(username=test_user2.username).id
     
     # Try to delete the second user using the first user's token
     delete_response = await test_client.delete(
@@ -270,7 +272,7 @@ async def test_invalid_token(configure_test_settings, test_client):
 async def get_auth_token(test_client, test_user):
     """Helper function to get an authentication token for a user."""
     login_response =  await test_client.post(
-        LOGIN_URL,
+        TOKEN_URL,
         data={
             "username": test_user.username,
             "password": test_user.password,

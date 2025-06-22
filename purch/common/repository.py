@@ -2,6 +2,13 @@ from abc import ABC
 from sqlmodel import SQLModel, create_engine, Session
 from typing import Any
 
+from purch.domains.models import (
+    User, 
+    Category, 
+    Item, 
+    Account, 
+    Transaction
+)
 from purch.common.config import get_settings
 
 

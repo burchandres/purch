@@ -10,7 +10,7 @@ from sqlalchemy.exc import OperationalError
 from purch.main import app
 from purch.common.config import Settings, get_settings
 from purch.common.logger import get_logger
-from purch.core.models import User
+from purch.domains.models import User
 
 
 logger = get_logger(__name__)
@@ -51,12 +51,12 @@ def test_db_name():
 
 @pytest.fixture
 def configure_get_current_active_user(test_user):
-    from purch.infrastructure.auth.security import get_current_active_user
+    from purch.infrastructure.auth.service import AuthService
     
     # Clear any existing overrides
     app.dependency_overrides = {}
     user = dict_to_user_class(test_user)
-    app.dependency_overrides[get_current_active_user] = lambda: user
+    app.dependency_overrides[AuthService.get_current_active_user] = lambda: user
 
 
 @pytest.fixture(scope="function")
@@ -95,14 +95,14 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     
     # Ensure all modules use our test settings
     modules_to_patch = [
-        "purch.core.startup.get_settings", 
-        "purch.infrastructure.auth.router.get_settings",
-        "purch.infrastructure.auth.security.get_settings",
-        "purch.finance.plaid.get_settings",
-        "purch.finance.tokens.get_settings",
-        "purch.user.router.get_settings",
-        "purch.finance.router.get_settings",
-        "purch.core.taskiq.get_settings",
+        "purch.api.startup.get_settings",
+        "purch.api.routers.user.get_settings",
+        "purch.common.repository.get_settings",
+        "purch.infrastructure.auth.service.get_settings",
+        "purch.infrastructure.plaid.tokens.get_settings",
+        "purch.infrastructure.plaid.client.get_settings",
+        "purch.infrastructure.taskiq.get_settings",
+        "purch.infrastructure.taskiq.tasks.get_settings",
     ]
     
     # Use lambda to ensure the same instance is returned each time

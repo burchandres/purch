@@ -42,7 +42,7 @@ class UserService:
             bank_name=item_get_response["institution_name"],
             user=user,
         )
-        self.item_repo.add(item)
+        self.user_repo.add(item)
         logger.debug(f"Pushed item {item.id} tied to user {item.user.id}")
         return item
     
@@ -67,5 +67,5 @@ class UserService:
                 name=plaid_account["name"],
                 item=item,
             )
-            self.account_repo.add(account)
+            self.user_repo.add_user_account(account)
             logger.debug(f"Pushed account {account.id} tied to item {account.item.id}")

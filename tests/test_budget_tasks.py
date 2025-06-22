@@ -3,11 +3,11 @@ import requests
 import pytest
 
 from fastapi import status
-from purch.finance.tokens import get_plaid_access_token
-from purch.finance.tasks import sync_transactions
+from purch.infrastructure.plaid.tokens import get_plaid_access_token
+from purch.infrastructure.taskiq.tasks import sync_transactions
 
-BASE_FINANCE_URL = "/finance"
-LINK_TOKEN_URL = BASE_FINANCE_URL + "/plaid/link-token"
+BASE_BUDGET_URL = "/budget"
+LINK_TOKEN_URL = BASE_BUDGET_URL + "/plaid/link-token"
 SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_token/create"
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
