@@ -19,6 +19,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
 
+
 class UserUpdate(BaseModel):
     first_name: str | None
     last_name: str | None

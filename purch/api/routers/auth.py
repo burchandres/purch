@@ -16,9 +16,7 @@ from purch.domains.models import User
 router = APIRouter()
 
 
-def get_user_repository(
-    user_repo: Annotated[Settings, Depends(UserRepository())],
-) -> UserRepository:
+def get_user_repository():
     return UserRepository()
 
 

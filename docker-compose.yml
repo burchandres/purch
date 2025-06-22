@@ -46,7 +46,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: taskiq worker purch.core:broker --fs-discover --reload
+    command: taskiq worker purch.taskiq:broker --fs-discover
     depends_on:
       redis:
         condition: service_healthy 
@@ -62,7 +62,7 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: taskiq scheduler purch.core:scheduler --fs-discover
+    command: taskiq scheduler purch.taskiq:scheduler --fs-discover
     depends_on:
       redis:
         condition: service_healthy

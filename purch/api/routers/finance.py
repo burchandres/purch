@@ -5,7 +5,7 @@ from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
-from purch.domains.user.models import User
+from purch.domains.models import User
 from purch.plaid.tokens import (
     get_plaid_link_token,
     get_plaid_access_token,
