@@ -113,7 +113,7 @@ async def sync_all_transactions(
     logger.debug(
         f"Task {context.message.task_id}: Syncing all transactions for all users within Purch..."
     )
-    all_users = user_repo.get_all()
+    all_users = user_repo.get_all_users()
     for user in all_users:
         await sync_transactions.kiq(user=user)
     logger.debug(
