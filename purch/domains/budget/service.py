@@ -89,4 +89,3 @@ class BudgetService:
             self.budget_repo.delete_transactions(
                 [txn["transaction_id"] for txn in transactions_sync_response["removed"]]
             )
-

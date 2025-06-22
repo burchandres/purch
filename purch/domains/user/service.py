@@ -1,13 +1,22 @@
 import uuid
+import datetime as dt
 
+from fastapi.security import OAuth2PasswordRequestForm
 from plaid.models import AccountsGetRequest, ItemGetRequest
 
 from purch.domains.user.repository import UserRepository
-from purch.domains.user.schemas import UserCreate, UserResponse, UserUpdate
+from purch.domains.user.schemas import (
+    UserCreate, 
+    UserResponse, 
+    UserUpdate, 
+    UserDelete
+)
 from purch.domains.models import User, Item, Account
 from purch.common.logger import get_logger
 from purch.infrastructure.plaid.client import plaid_client
 from purch.infrastructure.auth.service import AuthService
+from purch.common.config import get_settings
+from purch.infrastructure.auth.schemas import Token
 
 logger = get_logger(__name__)
 
@@ -16,6 +25,7 @@ class UserService:
     def __init__(self):
         self.user_repo = UserRepository()
         self.auth_service = AuthService()
+        self.settings = get_settings()
 
     def register_user(self, user_data: UserCreate) -> UserResponse | None:
         """
@@ -33,7 +43,7 @@ class UserService:
             username=user_data.username,
             password=user_data.password,
             first_name=user_data.first_name,
-            last_name=user_data.last_name
+            last_name=user_data.last_name,
         )
         self.user_repo.add_user(user_to_register)
         newly_created_user = self.user_repo.get_user_by_username(
@@ -44,7 +54,34 @@ class UserService:
             username=newly_created_user.username,
             first_name=newly_created_user.first_name,
             last_name=newly_created_user.last_name,
+            salary=newly_created_user.salary,
+            salary_rate=newly_created_user.salary_rate
         )
+
+    def get_purch_jwt_access_token(
+        self, login_form_data: OAuth2PasswordRequestForm
+    ) -> Token | None:
+        """
+        Generates jwt access token for client side.
+
+        Args:
+            login_form_data (dict): Dictionary containing username and password keys.
+
+        Returns:
+            (Token | None):  Token if valid user, else none.
+        """
+        user = self.user_repo.get_user_by_username(username=login_form_data.username)
+        if user is None:
+            return None
+        access_token_expires = dt.timedelta(
+            minutes=self.settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        access_token = self.auth_service.create_purch_jwt_access_token(
+            data={"sub": str(user.id)},
+            settings=self.settings,
+            expires_delta=access_token_expires,
+        )
+        return Token(access_token=access_token, token_type="bearer")
 
     def update_user(self, id: str | uuid.UUID, user_data: UserUpdate) -> UserResponse:
         """
@@ -78,19 +115,25 @@ class UserService:
             username=existing_user.username,
             first_name=existing_user.first_name,
             last_name=existing_user.last_name,
+            salary=existing_user.salary,
+            salary_rate=existing_user.salary_rate
         )
 
-    def delete_user(self, id: str | uuid.UUID) -> None:
+    def delete_user(self, user: User) -> UserDelete:
         """
         Delete a user by their ID.
         """
-        self.user_repo.delete_user(id=id)
-
+        self.user_repo.delete_user(user=user)
+        return UserDelete(
+            username=user.username, 
+            first_name=user.first_name,
+            last_name=user.last_name
+        )
 
     def refresh_user(self, user: User):
-        user = self.user_repo.get(user.id)
+        user = self.user_repo.get_user_by_id(user.id)
         return user
-    
+
     def store_user_item(self, user: User, access_token: str, item_id: str) -> Item:
         """
         This task retrieves all necessary metadata and creates an Item
@@ -120,7 +163,7 @@ class UserService:
         self.user_repo.add_user_item(item)
         logger.debug(f"Pushed item {item.id} tied to user {item.user.id}")
         return item
-    
+
     def store_user_accounts(self, item: Item):
         """
         This task retreives needed metadata to create and store accounts associated to an item for a user

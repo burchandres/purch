@@ -20,6 +20,8 @@ class UserResponse(BaseModel):
     username: str
     first_name: str
     last_name: str
+    salary: Optional[decimal.Decimal] = None
+    salary_rate: Optional[SalaryRates] = None
 
 
 class UserUpdate(BaseModel):
@@ -29,3 +31,9 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     salary_rate: Optional[SalaryRates] = None
     salary: Optional[decimal.Decimal] = None
+
+
+class UserDelete(BaseModel):
+    username: str
+    first_name: str
+    last_name: str

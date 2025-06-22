@@ -7,7 +7,7 @@ from purch.infrastructure.taskiq import broker
 from purch.common.dependencies import (
     get_budget_service,
     get_user_repository,
-    get_user_service
+    get_user_service,
 )
 from purch.domains import UserService, BudgetService
 from purch.domains.models import User, Item

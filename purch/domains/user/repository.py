@@ -1,10 +1,6 @@
 import uuid
 
-from sqlmodel import (
-    Session,
-    select,
-    update
-)
+from sqlmodel import Session, select, update
 from typing import Iterable
 
 from purch.domains.models import User, Item, Account
@@ -50,10 +46,8 @@ class UserRepository(AbstractPostgresRepository):
             results = session.exec(statement)
             return results.first()
 
-    def delete_user(self, id: uuid.UUID):
+    def delete_user(self, user: User):
         with Session(self.engine) as session:
-            statement = select(User).where(User.id == id)
-            user = session.exec(statement).one()
             session.delete(user)
             session.commit()
 
