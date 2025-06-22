@@ -1,4 +1,5 @@
-from ariadne import gql, QueryType, ObjectType, load_schema_from_path
+from ariadne import QueryType, ObjectType, load_schema_from_path, make_executable_schema
+from ariadne.asgi import GraphQL
 
 from purch.common.config import get_settings
 from purch.domains.models import User, Item, Transaction, Account
@@ -11,7 +12,7 @@ engine_url = settings.get_postgres_url()
 engine = create_engine(engine_url, echo=True)
 SQLModel.metadata.create_all(engine)
 
-schema = load_schema_from_path("purch/graphql/schema.graphql")
+gql_schema = load_schema_from_path("purch/graphql/schema.graphql")
 
 query = QueryType()
 user = ObjectType("User")
@@ -69,3 +70,6 @@ def resolve_user(obj, _):
 # ITEM RESOLUTION
 
 # ACCOUNT RESOLUTION
+
+schema = make_executable_schema(gql_schema, query)
+app = GraphQL(schema, debug=True)
