@@ -1,6 +1,8 @@
 import decimal
 import uuid
 
+from typing import Optional
+
 from pydantic import BaseModel
 
 from purch.domains.models import SalaryRates
@@ -21,9 +23,9 @@ class UserResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    first_name: str | None
-    last_name: str | None
-    username: str | None
-    password: str | None
-    salary_rate: SalaryRates | None
-    salary: decimal.Decimal | None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
+    salary_rate: Optional[SalaryRates] = None
+    salary: Optional[decimal.Decimal] = None
