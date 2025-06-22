@@ -1,16 +1,21 @@
 import plaid
 
+from enum import StrEnum, auto
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import SecretStr, Field
 from plaid.model.products import Products
 from plaid.model.country_code import CountryCode
 
-from purch.core.finance import PlaidEnvs
+
+class PlaidEnvs(StrEnum):
+    sandbox = auto()
+    production = auto()
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
+        # be able to run in both prod docker and also test docker
         env_file=["/run/secrets/env_file", ".env"],
         env_file_encoding="utf-8",
         case_sensitive=True,
@@ -105,13 +110,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """
-    Instantiate Settings object.
-
-    Args:
-        test_env (bool): If true return Settings object instantiated with test.env file, else with .env file
-
-    Returns:
-        Settings
-    """
+    """Instantiate Settings object."""
     return Settings()

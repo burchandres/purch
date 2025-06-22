@@ -8,8 +8,8 @@ from sqlmodel import create_engine, Session, text
 from sqlalchemy.exc import OperationalError
 
 from purch.main import app
-from purch.utils.config import Settings, get_settings
-from purch.utils.logger import get_logger
+from purch.common.config import Settings, get_settings
+from purch.common.logger import get_logger
 from purch.core.models import User
 
 

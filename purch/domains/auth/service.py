@@ -6,9 +6,9 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 
-from purch.utils.config import get_settings, Settings
-from purch.core.models import User
-from purch.user.repository import UserRepository
+from purch.common.config import get_settings, Settings
+from purch.domains.models import User
+from purch.domains.user.repository import UserRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
@@ -82,7 +82,7 @@ def get_current_user(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> User:
     """Decode JWT token and return current user."""
-    user_repo = UserRepository(settings=settings)
+    user_repo = UserRepository()
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -103,7 +103,7 @@ def get_current_user(
         raise credentials_exception
 
     # Get user from database
-    user = user_repo.get_via_id(id=user_id)
+    user = user_repo.get(id=user_id)
     if user is None:
         raise credentials_exception
     return user

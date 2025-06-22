@@ -1,11 +1,12 @@
 from plaid.models import ItemGetRequest, AccountsGetRequest, TransactionsSyncRequest
 
-from purch.core import broker
-from purch.core.models import User, Item, Account, Transaction
-from purch.finance.plaid import plaid_client
-from purch.finance.repository import FinanceRepository
-from purch.utils.config import get_settings
-from purch.utils.logger import get_logger
+from purch.taskiq import broker
+from purch.plaid.client import plaid_client
+from purch.domains.models import User, Item, Account, Transaction
+from purch.domains.user.repository import UserRepository
+from purch.domains.finance.repository import FinanceRepository
+from purch.common.config import get_settings
+from purch.common.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -166,3 +167,19 @@ async def sync_transactions(
         has_more = response["has_more"]
 
     return {"added": added, "modified": modified, "removed": removed}, cursor
+
+
+@broker.task(schedule={"cron": "0 0 * * *"})
+async def sync_all_transactions():
+    logger.debug("Syncing all transactions for all users within Purch...")
+    settings = get_settings()
+    user_repo = UserRepository()
+    all_users = user_repo.get_all()
+    # TODO: optimize this
+    for user in all_users:
+        for item in user.items:
+            await sync_transactions(
+                plaid_access_token=item.access_token,
+                initial_cursor=item.transaction_cursor,
+            )
+    logger.debug("done running sync_all_transactions.")

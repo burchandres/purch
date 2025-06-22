@@ -3,13 +3,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from purch.core import broker
-from purch.user.router import router as user_router
-from purch.auth.router import router as auth_router
-from purch.finance.router import router as finance_router
+from purch.taskiq import broker
+from purch.api.routers import (
+    user_router,
+    auth_router,
+    finance_router,
+)
 from purch.utils.project_version import version
-from purch.core.startup import init_db
-from purch.utils.logger import get_logger
+from purch.api.startup import init_db
+from purch.common.logger import get_logger
 
 
 logger = get_logger(__name__)

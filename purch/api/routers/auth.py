@@ -4,23 +4,20 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from purch.utils.config import get_settings, Settings
-from purch.auth.response_models import Token
-from purch.auth.security import (
+from purch.common.config import get_settings, Settings
+from purch.domains.auth.schemas import Token
+from purch.domains.auth.service import (
     create_purch_jwt_access_token,
     verify_password,
-    hash_password,
 )
-from purch.user.repository import UserRepository
-from purch.core.models import User
+from purch.domains.user.repository import UserRepository
+from purch.domains.models import User
 
 router = APIRouter()
 
 
-def get_user_repository(
-    settings: Annotated[Settings, Depends(get_settings)],
-) -> UserRepository:
-    return UserRepository(settings=settings)
+def get_user_repository():
+    return UserRepository()
 
 
 # TODO: see what else we have to do to make this a completely async call
@@ -48,25 +45,3 @@ async def login_for_access_token(
         expires_delta=access_token_expires,
     )
     return Token(access_token=access_token, token_type="bearer")
-
-
-# TODO: see what else we have to do to make this a completely async call
-@router.post("/register", response_model=User)
-async def register_user(
-    user: User,
-    user_repo: Annotated[UserRepository, Depends(get_user_repository)],
-) -> User:
-    """
-    Register a new user.
-    """
-    existing_user = user_repo.get_via_username(username=user.username)
-    # If user already exists return bad request
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with given username is already registered",
-        )
-    # If not, add user to user repo
-    user.password = hash_password(user.password)
-    user_repo.add(user)
-    return user
