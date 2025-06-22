@@ -28,10 +28,10 @@ class User(SQLModel, table=True):
     last_name: str = Field(default="Buch")
     username: str = Field(default="anders.buch", index=True, unique=True)
     password: str = Field(default="password")
-    is_active: bool = Field(default=True)
-    salary: decimal.Decimal = Field(default=decimal.Decimal(3958.33))
-    salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
-    category_budgets: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    is_active: bool | None = Field(default=True)
+    salary: decimal.Decimal | None = Field(default=decimal.Decimal(3958.33))
+    salary_rate: SalaryRates | None = Field(default=SalaryRates.bimonthly)
+    category_budgets: dict | None = Field(default_factory=dict, sa_column=Column(JSON))
 
     items: list["Item"] | None = Relationship(
         back_populates="user", cascade_delete=True

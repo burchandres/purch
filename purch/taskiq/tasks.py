@@ -173,7 +173,7 @@ async def sync_transactions(
 async def sync_all_transactions():
     logger.debug("Syncing all transactions for all users within Purch...")
     settings = get_settings()
-    user_repo = UserRepository(settings=settings)
+    user_repo = UserRepository()
     all_users = user_repo.get_all()
     # TODO: optimize this
     for user in all_users:

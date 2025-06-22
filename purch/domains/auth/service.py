@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 
 from purch.common.config import get_settings, Settings
-from purch.domains.user.models import User
+from purch.domains.models import User
 from purch.domains.user.repository import UserRepository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
@@ -82,7 +82,7 @@ def get_current_user(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> User:
     """Decode JWT token and return current user."""
-    user_repo = UserRepository(settings=settings)
+    user_repo = UserRepository()
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
