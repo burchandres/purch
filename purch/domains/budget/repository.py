@@ -1,4 +1,4 @@
-from sqlmodel import Session, update, delete, insert
+from sqlmodel import Session, update, delete
 
 from purch.common.repository import AbstractPostgresRepository
 from purch.domains.models import Transaction
