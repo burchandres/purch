@@ -10,8 +10,8 @@ logger = get_logger(__name__)
 
 
 class BudgetService:
-    def __init__(self):
-        self.budget_repo = BudgetRepository()
+    def __init__(self, budget_repo: BudgetRepository | None = None):
+        self.budget_repo = budget_repo or BudgetRepository()
 
     def sync_transactions(self, item: Item):
         """

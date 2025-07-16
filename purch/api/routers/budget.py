@@ -5,14 +5,14 @@ from purch.domains.models import User
 from purch.infrastructure.taskiq.tasks import (
     sync_transactions,
 )
-from purch.infrastructure.auth.service import AuthService
+from purch.infrastructure.auth.service import get_current_active_user
 
 router = APIRouter()
 
 
 @router.get("/sync-transactions")
 async def manually_sync_transactions(
-    user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    user: Annotated[User, Depends(get_current_active_user)],
 ):
     """
     Manual way of syncing transactions if requested by user.

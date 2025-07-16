@@ -1,23 +1,20 @@
 import requests
 import json
-import pytest
 
 from fastapi import status
 from purch.infrastructure.plaid.tokens import get_plaid_access_token
 
-BASE_FINANCE_URL = "/finance"
-LINK_TOKEN_URL = BASE_FINANCE_URL + "/plaid/link-token"
+LINK_TOKEN_URL = "/users/link-token"
 SANDBOX_CREATE_PUBLIC_TOKEN_URL = "https://sandbox.plaid.com/sandbox/public_token/create"
 # bank ids for testing: https://plaid.com/docs/sandbox/institutions/
 FIRST_PLATYPUS_BANK_ID = "ins_109508"
 
 
-@pytest.mark.anyio
 async def test_get_link_token(
-    test_client,
-    configure_get_current_active_user
+    configure_test_settings,
+    authenticated_test_client
 ):
-    link_token_response = await test_client.get(
+    link_token_response = await authenticated_test_client.get(
         LINK_TOKEN_URL
     )
     assert link_token_response.status_code == status.HTTP_200_OK
@@ -26,9 +23,9 @@ async def test_get_link_token(
     assert "expiration" in response_json
     assert "request_id" in response_json
 
+
 def test_exchange_public_token_for_access_token(
-    configure_test_settings,
-    test_client
+    configure_test_settings
 ):
     test_settings = configure_test_settings
     headers = {"Content-type": "application/json"}

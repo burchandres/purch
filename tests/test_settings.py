@@ -1,6 +1,6 @@
 
 
-def test_settings_override(configure_test_settings, test_db_name, test_client):
+def test_settings_override(configure_test_settings, test_db_name):
     """
     Test that settings are properly overridden in tests.
     This test verifies that:

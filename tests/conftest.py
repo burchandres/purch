@@ -11,6 +11,9 @@ from purch.main import app
 from purch.common.config import Settings, get_settings
 from purch.common.logger import get_logger
 from purch.domains.models import User
+from purch.domains.user.schemas import UserCreate
+from purch.domains.user.service import UserService
+from purch.infrastructure.auth.schemas import Token
 
 
 logger = get_logger(__name__)
@@ -32,14 +35,24 @@ def anyio_backend():
 @pytest.fixture
 def test_user():
     """Generate a test user in json form."""
+    new_id = uuid.uuid4()
     test_user = User(
-        id=uuid.uuid4(),
+        id=new_id,
+        username=f"user_{new_id.hex[:8]}",
         last_updated=dt.datetime.now(dt.timezone.utc).timestamp()
     )
-    test_user = test_user.model_dump()
-    test_user["salary"] = float(test_user["salary"])
-    test_user["id"] = test_user["id"].hex
-    return test_user
+
+    test_user_dict = test_user.model_dump()
+    test_user_dict["salary"] = float(test_user_dict["salary"])
+    test_user_dict["id"] = test_user_dict["id"].hex
+
+    create_user = UserCreate(
+        username=test_user.username,
+        password=test_user.password,
+        first_name=test_user.first_name,
+        last_name=test_user.last_name
+    )
+    return test_user, test_user_dict, create_user
 
 
 @pytest.fixture
@@ -50,22 +63,55 @@ def test_db_name():
 
 
 @pytest.fixture
-def configure_get_current_active_user(test_user):
-    from purch.infrastructure.auth.service import AuthService
-    
-    # Clear any existing overrides
-    app.dependency_overrides = {}
-    user = dict_to_user_class(test_user)
-    app.dependency_overrides[AuthService.get_current_active_user] = lambda: user
+async def authenticated_test_client(test_user, configure_test_settings):
+    from purch.infrastructure.auth.service import get_current_active_user
+    from purch.api.routers.user import get_user_service
+    from purch.common.dependencies import get_user_service
+    from unittest.mock import Mock
 
+    user, _, _ = test_user
+    # patch the get_current_active_user dependency
+    app.dependency_overrides[get_current_active_user] = lambda: user
+    # patch the get_user_service dependency
+    # this is to avoid trying to connect to database that hasn't been initialized yet
+    test_settings = configure_test_settings
 
-@pytest.fixture(scope="function")
-async def test_client():
-    app.dependency_overrides = {}
+    def get_mocked_user_service():
+        user_service = UserService(settings=test_settings)
+        user_service.get_purch_jwt_access_token = Mock(
+                return_value=Token(
+                    access_token="valid-test-token",
+                    token_type="bearer"
+                )
+            )
+        return user_service
+
+    app.dependency_overrides[get_user_service] = get_mocked_user_service
+
     async with LifespanManager(app):  # run lifespan (startup/shutdown)
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
             yield client
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def unauthenticated_test_client(configure_test_settings):
+    from purch.api.routers.user import get_user_service
+
+    # patch the get_user_service dependency
+    test_settings = configure_test_settings
+    # this is to avoid trying to connect to database that hasn't been initialized yet
+    create_user_service = lambda: UserService(settings=test_settings)
+    app.dependency_overrides[get_user_service] = create_user_service
+
+    async with LifespanManager(app):  # run lifespan (startup/shutdown)
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            yield client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -103,6 +149,7 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         "purch.infrastructure.plaid.client.get_settings",
         "purch.infrastructure.taskiq.get_settings",
         "purch.infrastructure.taskiq.tasks.get_settings",
+        "purch.domains.user.service.get_settings",
     ]
     
     # Use lambda to ensure the same instance is returned each time

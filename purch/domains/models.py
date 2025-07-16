@@ -32,10 +32,8 @@ class User(SQLModel, table=True):
     salary: decimal.Decimal = Field(default=decimal.Decimal(3958.33))
     salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
 
-    items: list["Item"] | None = Relationship(
-        back_populates="user", cascade_delete=True
-    )
-    categories: list["Category"] | None = Relationship(
+    items: list["Item"] = Relationship(back_populates="user", cascade_delete=True)
+    categories: list["Category"] = Relationship(
         back_populates="user", cascade_delete=True
     )
 

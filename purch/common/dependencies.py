@@ -2,7 +2,6 @@
 
 from purch.domains import BudgetService, UserService
 from purch.domains.user.repository import UserRepository
-from purch.infrastructure.auth.service import AuthService
 
 
 def get_budget_service() -> BudgetService:
@@ -15,7 +14,3 @@ def get_user_service() -> UserService:
 
 def get_user_repository() -> UserRepository:
     return UserRepository()
-
-
-def get_auth_service() -> AuthService:
-    return AuthService()

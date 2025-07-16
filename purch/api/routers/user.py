@@ -14,7 +14,7 @@ from purch.common.config import get_settings, Settings
 from purch.common.dependencies import get_user_service
 from purch.domains.models import User
 from purch.infrastructure.auth.schemas import Token
-from purch.infrastructure.auth.service import oauth2_scheme, AuthService
+from purch.infrastructure.auth.service import get_current_active_user
 from purch.infrastructure.plaid.tokens import (
     get_plaid_access_token,
     get_plaid_link_token,
@@ -28,7 +28,7 @@ router = APIRouter()
 
 @router.get("/current", response_model=User)
 async def get_current_user(
-    current_user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     return current_user
 
@@ -41,11 +41,12 @@ async def login_for_access_token(
     """
     Login for access token.
     """
-    token: Token = user_service.get_purch_jwt_access_token(form_data)
-    if token is None:
-        raise HTTPException(
+    try:
+        token: Token = user_service.get_purch_jwt_access_token(form_data)
+    except ValueError as e:
+        return Response(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            content="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return token
@@ -58,26 +59,32 @@ async def register_user(
     """
     Register a new user.
     """
-    user_response = user_service.register_user(user)
+    try:
+        user_response = user_service.register_user(user)
+    except ValueError as e:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
     return user_response
 
 
-@router.post("/update", dependencies=[Depends(oauth2_scheme)])
+@router.patch("/update", response_model=UserResponse)
 async def update_user(
-    updated_user_data: UserUpdate,
-    user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    user_update_data: UserUpdate,
+    user: Annotated[User, Depends(get_current_active_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
-) -> UserUpdate:
+) -> UserResponse:
     """
     Update user information.
     """
-    updated_user = user_service.update_user(id=user.id, user_data=updated_user_data)
+    try:
+        updated_user = user_service.update_user(id=user.id, user_data=user_update_data)
+    except ValueError as e:
+        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
     return updated_user
 
 
 @router.get("/link-token", response_model=LinkTokenResponse)
 async def get_link_token(
-    user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    user: Annotated[User, Depends(get_current_active_user)],
     settings: Annotated[Settings, Depends(get_settings)],
 ):
     """
@@ -95,7 +102,7 @@ async def get_link_token(
 @router.post("/sync-bank-accounts")
 async def sync_bank_accounts(
     public_token: str,
-    user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    user: Annotated[User, Depends(get_current_active_user)],
 ):
     """
     Exchanges provided plaid public token for persistent access token,
@@ -117,13 +124,10 @@ async def sync_bank_accounts(
         return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e)
 
 
-@router.delete("/delete", dependencies=[Depends(oauth2_scheme)], response_model=UserDelete)
+@router.delete("/delete", response_model=UserDelete)
 async def delete_user(
-    current_user: Annotated[User, Depends(AuthService.get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
     deleted_user = user_service.delete_user(current_user)
-    return Response(
-        status_code=status.HTTP_200_OK,
-        content=f"User {current_user.username} has been deleted.",
-    )
+    return deleted_user
