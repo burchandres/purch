@@ -13,6 +13,7 @@ class BudgetService:
     def __init__(self, budget_repo: BudgetRepository | None = None):
         self.budget_repo = budget_repo or BudgetRepository()
 
+    # TODO: find a way to optimize this
     def sync_transactions(self, item: Item):
         """
         Pulls all transactions from for the given access_token. Using item.transaction_cursor
