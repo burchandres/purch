@@ -37,9 +37,7 @@ class UserService:
 
         # If user already exists, return None
         if existing_user is not None:
-            raise ValueError(
-                f"User with username {user_data.username} already exists..."
-            )
+            raise ValueError
 
         # If user does not exist, add the user to the repository and return the newly created user response
         user_data.password = hash_password(user_data.password)
@@ -95,7 +93,7 @@ class UserService:
 
         # If user does not exist, raise an exception
         if existing_user is None:
-            raise ValueError("User not found or logged in...")
+            raise ValueError
 
         # Update the user data
         if user_data.first_name is not None:

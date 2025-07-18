@@ -62,7 +62,9 @@ async def register_user(
     try:
         user_response = user_service.register_user(user)
     except ValueError as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        return Response(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            content="User with that username already exists")
     return user_response
 
 
@@ -78,7 +80,9 @@ async def update_user(
     try:
         updated_user = user_service.update_user(id=user.id, user_data=user_update_data)
     except ValueError as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        return Response(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            content="User not found or logged in")
     return updated_user
 
 
