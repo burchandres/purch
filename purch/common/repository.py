@@ -1,39 +1,17 @@
-import uuid
-
-from abc import ABC, abstractmethod
+from abc import ABC
 from sqlmodel import SQLModel, create_engine, Session
-from typing import Any, Iterable
+from typing import Any
 
-from purch.common.config import get_settings
+from purch.domains.models import User, Category, Item, Account, Transaction
+from purch.common.config import get_settings, Settings
 
 
 class AbstractPostgresRepository(ABC):
-    settings = get_settings()
-
-    def __init__(self):
+    def __init__(self, settings: Settings | None = None):
+        self.settings = settings or get_settings()
         engine_url = self.settings.get_postgres_url()
         self.engine = create_engine(engine_url, echo=True)
         SQLModel.metadata.create_all(self.engine)  # checkfirst=True by default
-
-    @abstractmethod
-    def add(self, object: Any):
-        pass
-
-    @abstractmethod
-    def add_all(self, objects: Iterable[Any]):
-        pass
-
-    @abstractmethod
-    def get(self, id: str | uuid.UUID):
-        pass
-
-    @abstractmethod
-    def get_all(self):
-        pass
-
-    @abstractmethod
-    def delete(self, object: Any):
-        pass
 
     def execute(self, statement: Any):
         with Session(self.engine) as session:

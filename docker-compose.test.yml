@@ -9,6 +9,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     tmpfs:
       - /var/lib/postgresql/data  # Use tmpfs for faster tests
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 3s
+      retries: 40
     networks:
       - test_purch
 
@@ -29,6 +34,7 @@ services:
       - test_purch
 
   test-purch:
+    &test-purch
     build:
       context: .
       dockerfile: docker/dockerfile.test
@@ -37,7 +43,7 @@ services:
       - test_coverage:/app/coverage  # Persist coverage reports
     depends_on:
       test-postgres:
-        condition: service_started
+        condition: service_healthy
       test-redis:
         condition: service_healthy
     env_file: 
@@ -49,16 +55,10 @@ services:
       - test_purch
 
   test-taskiq-worker:
-    build:
-      context: .
-      dockerfile: docker/dockerfile.test
-    command: taskiq worker purch.core:broker --fs-discover
-    depends_on:
-      test-redis:
-        condition: service_healthy 
+    <<: *test-purch
+    ports: []
+    command: taskiq worker purch.infrastructure.taskiq:broker --fs-discover
     restart: unless-stopped
-    env_file:
-      - ./.env
     environment:
       - POSTGRES_HOST=test-postgres
       - REDIS_HOST=test-redis
@@ -66,16 +66,10 @@ services:
       - test_purch
 
   test-taskiq-scheduler:
-    build:
-      context: .
-      dockerfile: docker/dockerfile.test
-    command: taskiq scheduler purch.core:scheduler --fs-discover
-    depends_on:
-      test-redis:
-        condition: service_healthy
+    <<: *test-purch
+    ports: []
+    command: taskiq scheduler purch.infrastructure.taskiq:scheduler --fs-discover
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       - POSTGRES_HOST=test-postgres
       - REDIS_HOST=test-redis

@@ -10,7 +10,7 @@ from purch.common.config import get_settings, Settings
 from purch.domains.models import User
 from purch.domains.user.repository import UserRepository
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
 pwd_context = CryptContext(
     schemes=["argon2", "bcrypt"],
@@ -55,7 +55,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def create_purch_jwt_access_token(
-    data: dict, settings: Settings, expires_delta: Optional[datetime.timedelta] = None
+    data: dict,
+    settings: Settings,
+    expires_delta: Optional[datetime.timedelta] = datetime.timedelta(minutes=30),
 ) -> str:
     """Create JWT access token."""
     to_encode = data.copy()
@@ -72,7 +74,9 @@ def create_purch_jwt_access_token(
 
     # Create JWT token
     encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY.get_secret_value(), algorithm=settings.ALGORITHM
+        to_encode,
+        settings.SECRET_KEY.get_secret_value(),
+        algorithm=settings.ALGORITHM,
     )
     return encoded_jwt
 
@@ -82,7 +86,6 @@ def get_current_user(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> User:
     """Decode JWT token and return current user."""
-    user_repo = UserRepository()
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -103,12 +106,14 @@ def get_current_user(
         raise credentials_exception
 
     # Get user from database
-    user = user_repo.get(id=user_id)
+    user_repo = UserRepository(settings=settings)
+    user = user_repo.get_user_by_id(id=user_id)
     if user is None:
         raise credentials_exception
     return user
 
 
+@staticmethod
 def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:

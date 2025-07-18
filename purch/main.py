@@ -3,11 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from purch.taskiq import broker
+from purch.infrastructure.taskiq import broker
 from purch.api.routers import (
     user_router,
-    auth_router,
-    finance_router,
+    budget_router,
 )
 from purch.utils.project_version import version
 from purch.api.startup import init_db
@@ -51,20 +50,14 @@ app.add_middleware(
 # Add user service
 app.include_router(
     router=user_router,
-    prefix="/user",
-    tags=["user"],
-)
-# Add auth service
-app.include_router(
-    router=auth_router,
-    prefix="/auth",
-    tags=["auth"],
+    prefix="/users",
+    tags=["users"],
 )
 # Add core finance service for plaid integration
 app.include_router(
-    router=finance_router,
-    prefix="/finance",
-    tags=["finance"],
+    router=budget_router,
+    prefix="/budget",
+    tags=["budget"],
 )
 
 
