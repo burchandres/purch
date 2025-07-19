@@ -38,9 +38,9 @@ services:
     build:
       context: .
       dockerfile: docker/dockerfile.purch
-    command: fastapi dev purch/main.py --host 0.0.0.0 --port 8080
+    command: fastapi dev purch/main.py --host 0.0.0.0 --port 8081
     ports:
-      - "8080:8080"
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
