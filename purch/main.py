@@ -56,8 +56,8 @@ app.include_router(
 # Add core finance service for plaid integration
 app.include_router(
     router=budget_router,
-    prefix="/budget",
-    tags=["budget"],
+    prefix="/budgets",
+    tags=["budgets"],
 )
 
 
