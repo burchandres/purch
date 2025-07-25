@@ -44,10 +44,9 @@ async def login_for_access_token(
     try:
         token: Token = user_service.get_purch_jwt_access_token(form_data)
     except ValueError as e:
-        return Response(
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Incorrect username or password",
         )
     return token
 
@@ -62,7 +61,7 @@ async def register_user(
     try:
         user_response = user_service.register_user(user)
     except ValueError as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return user_response
 
 
@@ -78,7 +77,7 @@ async def update_user(
     try:
         updated_user = user_service.update_user(id=user.id, user_data=user_update_data)
     except ValueError as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=str(e))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return updated_user
 
 
@@ -96,11 +95,11 @@ async def get_link_token(
         )
         return plaid_link_token_response
     except plaid.ApiException as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e.body)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.body)
 
 
-@router.post("/sync-bank-accounts")
-async def sync_bank_accounts(
+@router.post("/exchange-public-token")
+async def exchange_public_token(
     public_token: str,
     user: Annotated[User, Depends(get_current_active_user)],
 ):
@@ -121,7 +120,7 @@ async def sync_bank_accounts(
         )
 
     except (TaskiqResultTimeoutError, plaid.ApiException) as e:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST, content=e)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/delete", response_model=UserDelete)

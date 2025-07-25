@@ -50,13 +50,13 @@ app.add_middleware(
 # Add user service
 app.include_router(
     router=user_router,
-    prefix="/users",
+    prefix="/api/users",
     tags=["users"],
 )
 # Add core finance service for plaid integration
 app.include_router(
     router=budget_router,
-    prefix="/budgets",
+    prefix="/api/budgets",
     tags=["budgets"],
 )
 
