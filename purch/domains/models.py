@@ -49,7 +49,7 @@ class Category(SQLModel, table=True):
     current_spending: decimal.Decimal = Field(default=0)
     budget: decimal.Decimal = Field(default=350)
 
-    user: User = Relationship(back_populates="categories")
+    user: "User" = Relationship(back_populates="categories")
 
 
 class Item(SQLModel, table=True):
@@ -91,4 +91,4 @@ class Transaction(SQLModel, table=True):
     currency_code: str = Field("USD")
     pending: bool = Field(default=False)
 
-    account: Account = Relationship(back_populates="transactions")
+    account: "Account" = Relationship(back_populates="transactions")
