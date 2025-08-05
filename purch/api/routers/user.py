@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.domains.user.service import UserService
-from purch.domains.user.schemas import LoginLogoutResponse, UserCreate, UserResponse, UserUpdate, UserDelete
+from purch.domains.user.schemas import UserCreate, UserResponse, UserUpdate, UserDelete
 from purch.common.config import get_settings, Settings
 from purch.common.dependencies import get_user_service
 from purch.domains.models import User
