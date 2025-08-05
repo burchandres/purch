@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import jwt, JWTError
@@ -82,34 +82,47 @@ def create_purch_jwt_access_token(
 
 
 def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> User:
-    """Decode JWT token and return current user."""
+    """Get current user from either Authorization header or httpOnly cookie."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # Try to get token from Authorization header
+    auth_header = request.headers.get("Authorization")
+    token = None
+
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ", 1)[1]
+    else:
+        # Fallback to cookie
+        token = request.cookies.get("access_token")
+
+    if not token:
+        raise credentials_exception
+
     try:
-        # Decode JWT token
         payload = jwt.decode(
             token,
             settings.SECRET_KEY.get_secret_value(),
             algorithms=[settings.ALGORITHM],
         )
         user_id: str = payload.get("sub")
-        if user_id is None:
+        if not user_id:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-    # Get user from database
     user_repo = UserRepository(settings=settings)
     user = user_repo.get_user_by_id(id=user_id)
-    if user is None:
+
+    if not user:
         raise credentials_exception
+
     return user
 
 
