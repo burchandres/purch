@@ -56,14 +56,13 @@ async def login_for_access_token(
         value=token.access_token,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite="strict",
         max_age=user_service.settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
         path="/",
     )
 
     return Response(
-        status_code=status.HTTP_200_OK,
-        content="User logged in successfully"
+        status_code=status.HTTP_200_OK, content="User logged in successfully"
     )
 
 
@@ -71,8 +70,7 @@ async def login_for_access_token(
 def logout(response: Response) -> Response:
     response.delete_cookie("access_token", path="/")
     return Response(
-        status_code=status.HTTP_200_OK,
-        content="User logged out successfully"
+        status_code=status.HTTP_200_OK, content="User logged out successfully"
     )
 
 
