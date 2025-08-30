@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
-from purch.domains.models import User
+from purch.domains.models import User, Transaction
 from purch.infrastructure.taskiq.tasks import (
     sync_transactions,
 )
@@ -19,3 +19,15 @@ async def manually_sync_transactions(
     """
     await sync_transactions.kiq(user=user)
     return Response(status_code=status.HTTP_200_OK, content="Syncing transactions...")
+
+
+@router.get("/get-transactions", response_model=list[Transaction])
+async def get_user_transactions(
+        user: Annotated[User, Depends(get_current_active_user)],
+) -> list[Transaction]:
+    """
+    Get all transactions for a user
+    """
+    transactions = [
+        transaction for item in user.items for account in item.accounts for transaction in account.transactions]
+    return transactions
