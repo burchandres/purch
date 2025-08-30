@@ -1,11 +1,9 @@
-import uuid
 import plaid
 
 from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
-from fastapi import APIRouter, Response, Depends, HTTPException, status
+from fastapi import APIRouter, Response, Depends, status
 
-from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.domains.user.service import UserService
@@ -33,18 +31,18 @@ async def get_current_user(
     return current_user
 
 
-@router.post("/token", response_model=Response)
+@router.post("/token")
 async def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
-) -> Response:
+):
     """
     Login for access token.
     """
     try:
         token: Token = user_service.get_purch_jwt_access_token(form_data)
-    except ValueError as e:
+    except ValueError:
         return Response(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content="Incorrect username or password",
@@ -66,8 +64,11 @@ async def login_for_access_token(
     )
 
 
-@router.post("/logout", response_model=Response)
-def logout(response: Response) -> Response:
+@router.post("/logout")
+def logout(response: Response,
+    user: Annotated[User, Depends(get_current_active_user)],
+    ):
+    user.is_active = False
     response.delete_cookie("access_token", path="/")
     return Response(
         status_code=status.HTTP_200_OK, content="User logged out successfully"

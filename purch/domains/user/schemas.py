@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 from purch.domains.models import SalaryRates
 
-
 class UserCreate(BaseModel):
     username: str = "anders.buch"
     password: str = "password"
