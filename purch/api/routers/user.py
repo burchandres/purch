@@ -33,11 +33,12 @@ async def get_current_user(
     return current_user
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=Response)
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
-) -> Token:
+) -> Response:
     """
     Login for access token.
     """
@@ -49,7 +50,28 @@ async def login_for_access_token(
             content="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return token
+
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=user_service.settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
+        path="/",
+    )
+
+    return Response(
+        status_code=status.HTTP_200_OK, content="User logged in successfully"
+    )
+
+
+@router.post("/logout", response_model=Response)
+def logout(response: Response) -> Response:
+    response.delete_cookie("access_token", path="/")
+    return Response(
+        status_code=status.HTTP_200_OK, content="User logged out successfully"
+    )
 
 
 @router.post("/register", response_model=UserResponse)
