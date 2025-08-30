@@ -1,11 +1,9 @@
-import uuid
 import plaid
 
 from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
-from fastapi import APIRouter, Response, Depends, HTTPException, status
+from fastapi import APIRouter, Response, Depends, status
 
-from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from purch.domains.user.service import UserService
@@ -33,7 +31,7 @@ async def get_current_user(
     return current_user
 
 
-@router.post("/token", response_model=Response)
+@router.post("/token")
 async def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -61,13 +59,11 @@ async def login_for_access_token(
         path="/",
     )
 
-    return Response(
-        status_code=status.HTTP_200_OK, content="User logged in successfully"
-    )
+    return response
 
 
-@router.post("/logout", response_model=Response)
-def logout(response: Response) -> Response:
+@router.post("/logout")
+def logout(response: Response):
     response.delete_cookie("access_token", path="/")
     return Response(
         status_code=status.HTTP_200_OK, content="User logged out successfully"
