@@ -34,7 +34,6 @@ async def get_current_user(
 
 @router.post("/login")
 async def new_auth_cookie(
-    # response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
