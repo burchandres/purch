@@ -6,7 +6,7 @@ from enum import StrEnum, auto
 from sqlmodel import SQLModel, Field, Relationship
 
 
-class SalaryRates(StrEnum):
+class IncomeRates(StrEnum):
     hourly = auto()
     weekly = auto()
     biweekly = auto()
@@ -24,13 +24,13 @@ class User(SQLModel, table=True):
     last_updated: float | None = Field(
         default_factory=dt.datetime.now(dt.timezone.utc).timestamp
     )
-    first_name: str = Field(default="Anders")
-    last_name: str = Field(default="Buch")
-    username: str = Field(default="anders.buch", index=True, unique=True)
-    password: str = Field(default="password")
-    is_active: bool = Field(default=True)
-    salary: decimal.Decimal = Field(default=decimal.Decimal(3958.33))
-    salary_rate: SalaryRates = Field(default=SalaryRates.bimonthly)
+    first_name: str = Field(...)
+    last_name: str = Field(...)
+    username: str = Field(..., index=True, unique=True)
+    password: str = Field(...)
+    is_active: bool | None = Field(default=False)
+    income: decimal.Decimal = Field(default=decimal.Decimal(0))
+    income_rate: IncomeRates = Field(default=IncomeRates.bimonthly)
 
     items: list["Item"] = Relationship(back_populates="user", cascade_delete=True)
     categories: list["Category"] = Relationship(

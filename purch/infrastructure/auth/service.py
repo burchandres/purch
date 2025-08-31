@@ -81,6 +81,18 @@ def create_purch_jwt_access_token(
     return encoded_jwt
 
 
+def verify_purch_jwt_token(token: str, settings: Settings) -> dict:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY.get_secret_value(),
+            algorithms=[settings.ALGORITHM],
+        )
+        return payload
+    except JWTError as e:
+        raise JWTError(f"Token validation failed: {str(e)}")
+
+
 def get_current_user(
     request: Request,
     settings: Annotated[Settings, Depends(get_settings)],
@@ -99,13 +111,13 @@ def get_current_user(
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.split(" ", 1)[1]
     else:
-        # Fallback to cookie
-        token = request.cookies.get("access_token")
+        token = request.cookies.get(settings.AUTH_COOKIE_NAME)
 
     if not token:
         raise credentials_exception
 
     try:
+        verify_purch_jwt_token(token, settings)
         payload = jwt.decode(
             token,
             settings.SECRET_KEY.get_secret_value(),

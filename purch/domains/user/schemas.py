@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from purch.domains.models import SalaryRates
+from purch.domains.models import IncomeRates
 
 class UserCreate(BaseModel):
     username: str = "anders.buch"
@@ -19,8 +19,8 @@ class UserResponse(BaseModel):
     username: str
     first_name: str
     last_name: str
-    salary: Optional[decimal.Decimal] = None
-    salary_rate: Optional[SalaryRates] = None
+    income: Optional[decimal.Decimal] = None
+    income_rate: Optional[IncomeRates] = None
 
 
 class UserUpdate(BaseModel):
@@ -28,8 +28,8 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
-    salary_rate: Optional[SalaryRates] = None
-    salary: Optional[decimal.Decimal] = None
+    income_rate: Optional[IncomeRates] = None
+    income: Optional[decimal.Decimal] = None
 
 
 class UserDelete(BaseModel):

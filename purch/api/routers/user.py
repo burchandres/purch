@@ -1,8 +1,9 @@
+from jose.exceptions import JWTError
 import plaid
 
 from taskiq import TaskiqResultTimeoutError
 from typing import Annotated
-from fastapi import APIRouter, Response, Depends, status
+from fastapi import APIRouter, Request, Response, Depends, status
 
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -12,7 +13,7 @@ from purch.common.config import get_settings, Settings
 from purch.common.dependencies import get_user_service
 from purch.domains.models import User
 from purch.infrastructure.auth.schemas import Token
-from purch.infrastructure.auth.service import get_current_active_user
+from purch.infrastructure.auth.service import get_current_active_user, verify_purch_jwt_token
 from purch.infrastructure.plaid.tokens import (
     get_plaid_access_token,
     get_plaid_link_token,
@@ -31,14 +32,14 @@ async def get_current_user(
     return current_user
 
 
-@router.post("/token")
-async def login_for_access_token(
-    response: Response,
+@router.post("/login")
+async def new_auth_cookie(
+    # response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
     """
-    Login for access token.
+    Generate purch auch cookie if login credentials are valid.
     """
     try:
         token: Token = user_service.get_purch_jwt_access_token(form_data)
@@ -49,8 +50,10 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    user_service.set_user_active_status(form_data.username, True)
+    response = Response(status_code=status.HTTP_200_OK, content="User logged in successfully")
     response.set_cookie(
-        key="access_token",
+        key=user_service.settings.AUTH_COOKIE_NAME,
         value=token.access_token,
         httponly=True,
         secure=True,
@@ -59,17 +62,44 @@ async def login_for_access_token(
         path="/",
     )
 
+    return response;
+
+@router.post("/verify_auth")
+async def verify_auth_cookie(
+    request: Request,
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    _: Annotated[User, Depends(get_current_active_user)],
+):
+    """
+    Verify purch auth cookie.
+    """
+    token = request.cookies.get(user_service.settings.AUTH_COOKIE_NAME)
+    if not token:
+        return Response(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content="No authentication cookie found"
+        )
+
+    try:
+        verify_purch_jwt_token(token, user_service.settings)
+    except JWTError:
+        return Response(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content="Invalid or expired Purch token"
+        )
     return Response(
-        status_code=status.HTTP_200_OK, content="User logged in successfully"
+        status_code=status.HTTP_200_OK,
+        content="User successfully authenticated"
     )
 
 
 @router.post("/logout")
 def logout(response: Response,
     user: Annotated[User, Depends(get_current_active_user)],
+    user_service: Annotated[UserService, Depends(get_user_service)],
     ):
-    user.is_active = False
-    response.delete_cookie("access_token", path="/")
+    user_service.user_repo.set_active_status(user, False)
+    response.delete_cookie(user_service.settings.AUTH_COOKIE_NAME, path="/")
     return Response(
         status_code=status.HTTP_200_OK, content="User logged out successfully"
     )
