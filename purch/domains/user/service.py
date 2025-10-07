@@ -58,8 +58,8 @@ class UserService:
             username=newly_created_user.username,
             first_name=newly_created_user.first_name,
             last_name=newly_created_user.last_name,
-            salary=newly_created_user.salary,
-            salary_rate=newly_created_user.salary_rate,
+            income=newly_created_user.income,
+            income_rate=newly_created_user.income_rate,
         )
 
     def get_purch_jwt_access_token(
@@ -87,29 +87,23 @@ class UserService:
         )
         return Token(access_token=access_token, token_type="bearer")
 
+
     def update_user(self, id: str | uuid.UUID, user_data: UserUpdate) -> UserResponse:
         """
         Update user information.
         """
         existing_user = self.user_repo.get_user_by_id(id=id)
+        existing_user.model_dump
 
         # If user does not exist, raise an exception
         if existing_user is None:
             raise ValueError("User not found or logged in...")
 
         # Update the user data
-        if user_data.first_name is not None:
-            existing_user.first_name = user_data.first_name
-        if user_data.last_name is not None:
-            existing_user.last_name = user_data.last_name
-        if user_data.username is not None:
-            existing_user.username = user_data.username
-        if user_data.password is not None:
-            existing_user.password = hash_password(user_data.password)
-        if user_data.salary_rate is not None:
-            existing_user.salary_rate = user_data.salary_rate
-        if user_data.salary is not None:
-            existing_user.salary = user_data.salary
+        for attr, val in user_data.model_dump().items():
+            if val is not None:
+                existing_user.val = val if attr != 'password' else hash_password(val)
+
 
         # Save the updated user back to the repository
         self.user_repo.update_user(existing_user)
@@ -119,8 +113,8 @@ class UserService:
             username=existing_user.username,
             first_name=existing_user.first_name,
             last_name=existing_user.last_name,
-            salary=existing_user.salary,
-            salary_rate=existing_user.salary_rate,
+            income=existing_user.income,
+            income_rate=existing_user.income_rate,
         )
 
     def delete_user(self, user: User) -> UserDelete:
@@ -189,3 +183,8 @@ class UserService:
             )
             self.user_repo.add_user_account(account)
             logger.debug(f"Pushed account {account.id} tied to item {account.item.id}")
+
+    def set_user_active_status(self, username: str, is_active: bool):
+        user = self.user_repo.get_user_by_username(username=username)
+        user.is_active = is_active
+        self.user_repo.set_active_status(user, is_active)

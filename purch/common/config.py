@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
         default=30, description="time, in minutes, the jwt lasts per user"
     )
+    AUTH_COOKIE_NAME: str = Field("purch_token")
 
     # Secret key for JWT signing
     SECRET_KEY: SecretStr = Field(description="secret key used for password encryption")

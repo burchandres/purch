@@ -54,8 +54,8 @@ async def test_user_update(configure_test_settings, authenticated_test_client, t
     assert user.id == update_response["id"]
     assert update_response["first_name"] == "Bofa"
     assert update_response["last_name"] == "Grover"
-    assert update_response["salary"] == user.salary
-    assert update_response["salary_rate"] == user.salary_rate
+    assert update_response["income"] == user.income
+    assert update_response["income_rate"] == user.income_rate
 
 # TODO: figure out why this is failing
 @pytest.mark.skip
@@ -63,7 +63,7 @@ async def test_valid_user_login(configure_test_settings, authenticated_test_clie
     """Test successful login with valid credentials using the OAuth2PasswordRequestForm format."""
     # Create a test user
     user, _, _ = test_user
-    
+
     # Now hit the login endpoint with form data (mimicking OAuth2PasswordRequestForm)
     login_response = await authenticated_test_client.post(
         TOKEN_URL,
@@ -73,11 +73,11 @@ async def test_valid_user_login(configure_test_settings, authenticated_test_clie
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    
+
     # Check response status and content
     assert login_response.status_code == status.HTTP_200_OK
     response_data = login_response.json()
-    
+
     # Verify token structure
     assert "access_token" in response_data
     assert "token_type" in response_data
@@ -89,7 +89,7 @@ async def test_invalid_password_login(configure_test_settings, unauthenticated_t
     """Test login failure with invalid password."""
     # Create and register a test user
     test_user, _, _ = test_user
-    
+
     # Try to login with incorrect password
     login_response = await unauthenticated_test_client.post(
         TOKEN_URL,
@@ -99,7 +99,7 @@ async def test_invalid_password_login(configure_test_settings, unauthenticated_t
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    
+
     # Check we get a 401 Unauthorized response
     assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -115,7 +115,7 @@ async def test_invalid_username_login(configure_test_settings, unauthenticated_t
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
-    
+
     # Check we get a 401 Unauthorized response
     assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -130,7 +130,7 @@ async def test_unauthenticated_access(configure_test_settings, unauthenticated_t
     # Try to access current user endpoint without a token
     current_user_response = await unauthenticated_test_client.get(CURRENT_USER_URL)
     assert current_user_response.status_code == status.HTTP_401_UNAUTHORIZED
-    
+
     # Try to access delete user endpoint without a token
     delete_user_response = await unauthenticated_test_client.delete(DELETE_USER_URL)
     assert delete_user_response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -150,17 +150,17 @@ async def test_authenticated_current_user(configure_test_settings, unauthenticat
     assert register_response.status_code == status.HTTP_200_OK
     # get token
     token = get_auth_token(test_user, test_settings)
-    
+
     # Access current user endpoint with token
     current_user_response = await unauthenticated_test_client.get(
         CURRENT_USER_URL,
         headers={"Authorization": f"Bearer {token}"}
     )
-    
+
     # Verify response
     assert current_user_response.status_code == status.HTTP_200_OK
     current_user_data = current_user_response.json()
-    
+
     # Verify user data matches
     assert current_user_data["username"] == test_user.username
     assert current_user_data["first_name"] == test_user.first_name
@@ -180,16 +180,16 @@ async def test_delete_own_account(configure_test_settings, unauthenticated_test_
     assert register_response.status_code == status.HTTP_200_OK
     # get token
     token = get_auth_token(test_user, test_settings)
-    
+
     # Delete the user account
     delete_response = await unauthenticated_test_client.delete(
         DELETE_USER_URL,
         headers={"Authorization": f"Bearer {token}"}
     )
-    
+
     # Verify successful deletion
     assert delete_response.status_code == status.HTTP_200_OK
-    
+
     # Verify user can no longer access protected endpoints
     current_user_response = await unauthenticated_test_client.get(
         CURRENT_USER_URL,
@@ -210,4 +210,3 @@ def get_auth_token(test_user, test_settings) -> str:
         expires_delta=token_expiration
     )
     return auth_token
-

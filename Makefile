@@ -13,6 +13,15 @@ down: ## Bring down the docker containers
 	@echo "Running make $@..."
 	docker compose --file=docker-compose.yml --file=docker-compose.test.yml down
 
+nuke: ## Bring down the docker containers and delete volumes
+	@echo "Running make $@..."
+	docker compose --file=docker-compose.yml --file=docker-compose.test.yml down --volumes
+
+refresh: down build up ## Bring down containers, rebuild, bring up again
+
+hard-refresh: nuke build up ## Bring down containers, nuke volumes, rebuild, bring up again
+
+
 lint: ## Run both lint-format and lint-check
 	@echo "Running make $@..."
 	make lint-format

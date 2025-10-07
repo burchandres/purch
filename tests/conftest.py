@@ -43,7 +43,7 @@ def test_user():
     )
 
     test_user_dict = test_user.model_dump()
-    test_user_dict["salary"] = float(test_user_dict["salary"])
+    test_user_dict["income"] = float(test_user_dict["income"])
     test_user_dict["id"] = test_user_dict["id"].hex
 
     create_user = UserCreate(
@@ -118,10 +118,10 @@ async def unauthenticated_test_client(configure_test_settings):
 def configure_test_settings(request, monkeypatch, test_db_name):
     """
     Configure test database settings and ensure all modules use the test settings.
-    
+
     This fixture:
     1. Clears the settings cache to ensure fresh settings
-    2. Sets a unique POSTGRES_DATABASE environment variable 
+    2. Sets a unique POSTGRES_DATABASE environment variable
     3. Creates a new Settings instance with the test database name
     4. Patches all modules that use settings to use our test instance
     5. Yields the test_settings object for use in tests
@@ -129,16 +129,16 @@ def configure_test_settings(request, monkeypatch, test_db_name):
     """
     # Clear the cached settings to ensure we get a fresh instance
     get_settings.cache_clear()
-    
+
     # Set the environment variable
     test_db_name = test_db_name
     monkeypatch.setenv("POSTGRES_DATABASE", test_db_name)
     monkeypatch.setenv("POSTGRES_HOST", "test-postgres")
     monkeypatch.setenv("REDIS_HOST", "test-redis")
-    
+
     # Create new settings instance (will pick up the environment variables)
     test_settings = Settings()
-    
+
     # Ensure all modules use our test settings
     modules_to_patch = [
         "purch.api.startup.get_settings",
@@ -151,11 +151,11 @@ def configure_test_settings(request, monkeypatch, test_db_name):
         "purch.infrastructure.taskiq.tasks.get_settings",
         "purch.domains.user.service.get_settings",
     ]
-    
+
     # Use lambda to ensure the same instance is returned each time
     for module in modules_to_patch:
         monkeypatch.setattr(module, lambda: test_settings)
-    
+
     # The taskiq module will automatically use InMemoryBroker for tests
     # based on the test database name pattern
 

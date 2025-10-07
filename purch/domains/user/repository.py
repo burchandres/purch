@@ -61,9 +61,15 @@ class UserRepository(AbstractPostgresRepository):
                     last_name=updated_user.last_name,
                     username=updated_user.username,
                     password=updated_user.password,
-                    salary_rate=updated_user.salary_rate,
-                    salary=updated_user.salary,
+                    income_rate=updated_user.income_rate,
+                    income=updated_user.income,
                 )
             )
             session.exec(statement)
+            session.commit()
+
+    def set_active_status(self, user: User, is_active: bool):
+        user.is_active = is_active
+        with Session(self.engine) as session:
+            session.add(user)
             session.commit()
