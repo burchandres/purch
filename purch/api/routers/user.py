@@ -13,7 +13,10 @@ from purch.common.config import get_settings, Settings
 from purch.common.dependencies import get_user_service
 from purch.domains.models import User
 from purch.infrastructure.auth.schemas import Token
-from purch.infrastructure.auth.service import get_current_active_user, verify_purch_jwt_token
+from purch.infrastructure.auth.service import (
+    get_current_active_user,
+    verify_purch_jwt_token,
+)
 from purch.infrastructure.plaid.tokens import (
     get_plaid_access_token,
     get_plaid_link_token,
@@ -50,18 +53,21 @@ async def new_auth_cookie(
         )
 
     user_service.set_user_active_status(form_data.username, True)
-    response = Response(status_code=status.HTTP_200_OK, content="User logged in successfully")
+    response = Response(
+        status_code=status.HTTP_200_OK, content="User logged in successfully"
+    )
     response.set_cookie(
         key=user_service.settings.AUTH_COOKIE_NAME,
         value=token.access_token,
         httponly=True,
         secure=True,
         samesite="strict",
-        max_age=user_service.settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES,
+        max_age=user_service.settings.AUTH_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         path="/",
     )
 
-    return response;
+    return response
+
 
 @router.post("/verify_auth")
 async def verify_auth_cookie(
@@ -76,7 +82,7 @@ async def verify_auth_cookie(
     if not token:
         return Response(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content="No authentication cookie found"
+            content="No authentication cookie found",
         )
 
     try:
@@ -84,19 +90,19 @@ async def verify_auth_cookie(
     except JWTError:
         return Response(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            content="Invalid or expired Purch token"
+            content="Invalid or expired Purch token",
         )
     return Response(
-        status_code=status.HTTP_200_OK,
-        content="User successfully authenticated"
+        status_code=status.HTTP_200_OK, content="User successfully authenticated"
     )
 
 
 @router.post("/logout")
-def logout(response: Response,
+def logout(
+    response: Response,
     user: Annotated[User, Depends(get_current_active_user)],
     user_service: Annotated[UserService, Depends(get_user_service)],
-    ):
+):
     user_service.user_repo.set_active_status(user, False)
     response.delete_cookie(user_service.settings.AUTH_COOKIE_NAME, path="/")
     return Response(
