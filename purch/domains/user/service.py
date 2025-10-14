@@ -87,7 +87,6 @@ class UserService:
         )
         return Token(access_token=access_token, token_type="bearer")
 
-
     def update_user(self, id: str | uuid.UUID, user_data: UserUpdate) -> UserResponse:
         """
         Update user information.
@@ -102,8 +101,11 @@ class UserService:
         # Update the user data
         for attr, val in user_data.model_dump().items():
             if val is not None:
-                existing_user.val = val if attr != 'password' else hash_password(val)
-
+                setattr(
+                    existing_user,
+                    attr,
+                    val if attr != "password" else hash_password(val),
+                )
 
         # Save the updated user back to the repository
         self.user_repo.update_user(existing_user)
