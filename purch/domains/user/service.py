@@ -98,6 +98,19 @@ class UserService:
         if existing_user is None:
             raise ValueError("User not found or logged in...")
 
+        # If attempting to change username, ensure it's not taken
+        if (
+            user_data.username is not None
+            and user_data.username != existing_user.username
+        ):
+            other_user = self.user_repo.get_user_by_username(
+                username=user_data.username
+            )
+            if other_user is not None:
+                raise ValueError(
+                    f"User with username {user_data.username} already exists..."
+                )
+
         # Update the user data
         for attr, val in user_data.model_dump().items():
             if val is not None:
