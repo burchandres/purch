@@ -87,7 +87,6 @@ class UserService:
         )
         return Token(access_token=access_token, token_type="bearer")
 
-
     def update_user(self, id: str | uuid.UUID, user_data: UserUpdate) -> UserResponse:
         """
         Update user information.
@@ -99,11 +98,27 @@ class UserService:
         if existing_user is None:
             raise ValueError("User not found or logged in...")
 
+        # If attempting to change username, ensure it's not taken
+        if (
+            user_data.username is not None
+            and user_data.username != existing_user.username
+        ):
+            other_user = self.user_repo.get_user_by_username(
+                username=user_data.username
+            )
+            if other_user is not None:
+                raise ValueError(
+                    f"User with username {user_data.username} already exists..."
+                )
+
         # Update the user data
         for attr, val in user_data.model_dump().items():
             if val is not None:
-                existing_user.val = val if attr != 'password' else hash_password(val)
-
+                setattr(
+                    existing_user,
+                    attr,
+                    val if attr != "password" else hash_password(val),
+                )
 
         # Save the updated user back to the repository
         self.user_repo.update_user(existing_user)
